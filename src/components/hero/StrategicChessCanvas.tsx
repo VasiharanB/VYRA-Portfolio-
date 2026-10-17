@@ -104,7 +104,7 @@ export function StrategicChessCanvas({ reducedMotion, onContextLoss }: Strategic
         position: 'relative',
         width: '100%',
         height: '100%',
-        minHeight: isMobile ? '360px' : '520px',
+        minHeight: isMobile ? '320px' : 'clamp(320px, 48vh, 480px)',
         overflow: 'hidden',
         opacity: isReady ? 1 : 0.4,
         transition: 'opacity 0.4s ease-out',
