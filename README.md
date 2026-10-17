@@ -6,7 +6,9 @@ A personal developer portfolio built with **React, TypeScript and Vite**. The ex
 
 ## Live website
 
-The production URL will be added here after the first Vercel deployment. Use the deploy button above to import this repository to Vercel.
+**Production:** [https://vyra-portfolio.vercel.app](https://vyra-portfolio.vercel.app)
+
+Deployed on Vercel from the `main` branch. The site uses Vite, `npm run build`, and `dist` as the output directory.
 
 ## Highlights
 
@@ -49,12 +51,13 @@ The production output is generated in the dist/ directory.
 
 ## Deploy to Vercel
 
-1. Sign in to [Vercel](https://vercel.com/) and choose **Add New → Project**.
-2. Import VasiharanB/VYRA-Portfolio- from GitHub. If asked, grant Vercel access to the repository.
-3. Keep the project root as /. The Vite framework preset should be detected automatically.
-4. Use npm run build as the build command and dist as the output directory. These settings are also included in vercel.json.
-5. Deploy. Vercel will provide the production URL and can rebuild on future pushes to the connected branch.
-6. Add the resulting production URL to the Live website section above.
+This repository includes `vercel.json` with the production build command and output directory. To create or manage a separate Vercel project:
+
+1. Sign in to [Vercel](https://vercel.com/).
+2. Import `VasiharanB/VYRA-Portfolio-` from GitHub and grant repository access when prompted.
+3. Keep the root directory as `/`; the Vite framework should be detected automatically.
+4. Use `npm run build` as the build command and `dist` as the output directory.
+5. Deploy. Vercel will provide a production URL and can rebuild on future pushes when Git integration is connected.
 
 No secrets or environment variables are required for the portfolio's current feature set.
 
