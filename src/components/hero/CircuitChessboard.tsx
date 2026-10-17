@@ -10,14 +10,15 @@ interface CircuitChessboardProps {
 
 export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChessboardProps) {
   const palette = useMemo(() => ({
-    // Authentic alternating squares with high visual contrast
-    tileLight: new THREE.Color('#22262a'), // cool graphite/gunmetal
-    tileDark: new THREE.Color('#0e1012'),  // deep obsidian
-    tileBevel: new THREE.Color('#2d343c'), // specular bevel highlight
-    gridSeam: new THREE.Color('#16181b'),  // recessed channel
+    // High-contrast alternating squares with brightened titanium tones
+    tileLight: new THREE.Color('#5a6672'), // bright brushed titanium slate
+    tileLightTop: new THREE.Color('#6e7c8a'), // specular top highlight plate
+    tileDark: new THREE.Color('#20252b'),  // deep obsidian charcoal
+    tileDarkBevel: new THREE.Color('#293038'), // subtle bevel rim
+    gridSeam: new THREE.Color('#14171a'),  // recessed channel
+    hairlineBus: new THREE.Color('#2d382c'), // secondary circuit trace
     acid: new THREE.Color('#b9f36a'),
     acidDim: new THREE.Color('#384c20'),
-    coolTrace: new THREE.Color('#323b48'),
   }), [])
 
   // Board dimensions: 6x6 grid of 1.15 unit tiles
@@ -61,7 +62,7 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
 
           // Calculate radial falloff so perimeter tiles dissolve into the graphite background
           const distFromCenter = Math.hypot(posX, posZ)
-          const opacity = Math.max(0.12, Math.min(0.96, 1.0 - (distFromCenter / (boardOffset * 1.5)) * 0.72))
+          const opacity = Math.max(0.18, Math.min(0.98, 1.0 - (distFromCenter / (boardOffset * 1.5)) * 0.68))
 
           return (
             <group key={`tile-${r}-${c}`} position={[posX, -0.04, posZ]}>
@@ -70,23 +71,34 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
                 <boxGeometry args={[tileSize * 0.95, 0.08, tileSize * 0.95]} />
                 <meshStandardMaterial
                   color={isLight ? palette.tileLight : palette.tileDark}
-                  roughness={isLight ? 0.28 : 0.38}
-                  metalness={0.84}
+                  roughness={isLight ? 0.26 : 0.36}
+                  metalness={0.80}
                   transparent
                   opacity={opacity}
                 />
               </mesh>
 
-              {/* Brushed metallic top face on light squares */}
-              {isLight && (
+              {/* Brushed metallic top face plate on light squares */}
+              {isLight ? (
                 <mesh position={[0, 0.041, 0]} rotation={[-Math.PI / 2, 0, 0]}>
                   <planeGeometry args={[tileSize * 0.88, tileSize * 0.88]} />
                   <meshStandardMaterial
-                    color={palette.tileBevel}
-                    roughness={0.24}
-                    metalness={0.88}
+                    color={palette.tileLightTop}
+                    roughness={0.22}
+                    metalness={0.85}
                     transparent
-                    opacity={opacity * 0.75}
+                    opacity={opacity * 0.85}
+                  />
+                </mesh>
+              ) : (
+                <mesh position={[0, 0.041, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                  <planeGeometry args={[tileSize * 0.88, tileSize * 0.88]} />
+                  <meshStandardMaterial
+                    color={palette.tileDarkBevel}
+                    roughness={0.34}
+                    metalness={0.80}
+                    transparent
+                    opacity={opacity * 0.70}
                   />
                 </mesh>
               )}
@@ -95,31 +107,31 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
         })
       })}
 
-      {/* RESTRAINED CIRCUIT SEAM CHANNELS & VIAS */}
+      {/* RESTRAINED CIRCUIT SEAM CHANNELS & SECONDARY HAIRLINE TRACES */}
       {Array.from({ length: gridSize + 1 }).map((_, idx) => {
         const offset = idx * tileSize - boardOffset - tileSize / 2
         return (
           <React.Fragment key={`bus-${idx}`}>
-            {/* Horizontal trace */}
+            {/* Horizontal recessed seam */}
             <mesh position={[0, 0.002, offset]}>
-              <boxGeometry args={[gridSize * tileSize, 0.006, 0.018]} />
+              <boxGeometry args={[gridSize * tileSize, 0.006, 0.016]} />
               <meshStandardMaterial
-                color={palette.gridSeam}
+                color={palette.hairlineBus}
                 roughness={0.4}
                 metalness={0.7}
                 transparent
-                opacity={0.5}
+                opacity={0.45}
               />
             </mesh>
-            {/* Vertical trace */}
+            {/* Vertical recessed seam */}
             <mesh position={[offset, 0.002, 0]}>
-              <boxGeometry args={[0.018, 0.006, gridSize * tileSize]} />
+              <boxGeometry args={[0.016, 0.006, gridSize * tileSize]} />
               <meshStandardMaterial
-                color={palette.gridSeam}
+                color={palette.hairlineBus}
                 roughness={0.4}
                 metalness={0.7}
                 transparent
-                opacity={0.5}
+                opacity={0.45}
               />
             </mesh>
           </React.Fragment>
@@ -140,7 +152,7 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
               <meshStandardMaterial
                 color={isHovered ? palette.acid : palette.acidDim}
                 emissive={palette.acid}
-                emissiveIntensity={isHovered ? 0.9 : 0.2}
+                emissiveIntensity={isHovered ? 0.95 : 0.25}
                 roughness={0.2}
               />
             </mesh>
@@ -151,7 +163,7 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
               <meshStandardMaterial
                 color={isHovered ? palette.acid : palette.acidDim}
                 emissive={palette.acid}
-                emissiveIntensity={isHovered ? 0.9 : 0.2}
+                emissiveIntensity={isHovered ? 0.95 : 0.25}
                 roughness={0.2}
               />
             </mesh>
@@ -180,7 +192,7 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
                 <meshBasicMaterial
                   color={palette.acid}
                   transparent
-                  opacity={isHovered ? 0.95 : 0.4}
+                  opacity={isHovered ? 0.95 : 0.45}
                   side={THREE.DoubleSide}
                 />
               </mesh>
@@ -191,7 +203,7 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
                 <meshStandardMaterial
                   color={palette.acid}
                   emissive={palette.acid}
-                  emissiveIntensity={isHovered ? 1.0 : 0.35}
+                  emissiveIntensity={isHovered ? 1.1 : 0.4}
                 />
               </mesh>
 
@@ -199,7 +211,7 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
               {isHovered && (
                 <mesh position={[0, -0.01, 0]}>
                   <boxGeometry args={[tileSize * 0.92, 0.02, tileSize * 0.92]} />
-                  <meshBasicMaterial color={palette.acid} transparent opacity={0.16} />
+                  <meshBasicMaterial color={palette.acid} transparent opacity={0.18} />
                 </mesh>
               )}
             </group>

@@ -41,7 +41,7 @@ export function StrategicChessScene({
     }
   })
 
-  // Dynamic light position based on active strategic vector
+  // Dynamic substrate point-light position based on active strategic vector
   const accentLightPos = useMemo<[number, number, number]>(() => {
     if (activeVector === 'STRATEGY') return [-1.15, -0.2, 2.3]
     if (activeVector === 'ARCHITECTURE') return [1.15, -0.2, 2.3]
@@ -51,48 +51,65 @@ export function StrategicChessScene({
 
   return (
     <group ref={masterGroupRef} position={[0, -0.15, 0]}>
-      {/* CINEMATIC ARCHITECTURAL STUDIO LIGHTING */}
-      {/* 1. Base ambient fill light: ensures deep recesses stay rich dark graphite */}
-      <ambientLight intensity={0.46} color="#181c20" />
+      {/* 1. ATMOSPHERIC GRADIENT BACKDROP (Separates sculpture from #0b0c0d graphite canvas) */}
+      <mesh position={[0.2, 0.6, -2.2]}>
+        <planeGeometry args={[7.0, 7.0]} />
+        <meshBasicMaterial
+          color="#161f18"
+          transparent
+          opacity={0.32}
+          depthWrite={false}
+        />
+      </mesh>
 
-      {/* 2. Key light: Crisp studio directional light illuminating the horse's brow, muzzle & neck curves */}
+      {/* 2. BASE AMBIENT FILL LIGHT: ensures recesses remain soft silver-charcoal instead of black */}
+      <ambientLight intensity={0.65} color="#262f38" />
+
+      {/* 3. BROAD, SOFT FRONTAL KEY LIGHT: reveals muzzle, forehead, mane notches, and circular base */}
       <directionalLight
-        position={[-4.5, 7.5, 5.5]}
-        intensity={2.6}
+        position={[-2.5, 6.0, 6.5]}
+        intensity={3.2}
         color="#ffffff"
         castShadow={false}
       />
 
-      {/* 3. Rim light: Cool steel/slate rim light catching the silhouetted dorsal crest, mane notches & ears */}
+      {/* 4. SECONDARY FRONTAL FILL LIGHT: softens shadows on the lateral cheek and neck */}
       <directionalLight
-        position={[5.5, 4.5, -4.5]}
-        intensity={1.6}
-        color="#9db4dc"
+        position={[3.0, 3.5, 5.0]}
+        intensity={1.8}
+        color="#e2ebf4"
       />
 
-      {/* 4. Soft board fill light: upward bounce from the chessboard into the throat and pedestal */}
+      {/* 5. RESTRAINED COOL RIM LIGHT: crisp steel-blue rim separating dorsal crest and ears from background */}
       <directionalLight
-        position={[0, -2, 3]}
-        intensity={0.5}
-        color="#d8e8d0"
+        position={[4.8, 4.2, -4.5]}
+        intensity={2.6}
+        color="#a0c2f0"
       />
 
-      {/* 5. Substrate active vector accent light */}
+      {/* 6. SOFT BOARD BOUNCE: upward reflection off the brightened chessboard into throat & chin */}
+      <directionalLight
+        position={[0, -2.5, 3.0]}
+        intensity={0.85}
+        color="#d4e4d8"
+      />
+
+      {/* 7. DYNAMIC SUBSTRATE ACCENT LIGHT */}
       <pointLight
         position={accentLightPos}
-        intensity={activeVector ? 2.6 : 0.9}
+        intensity={activeVector ? 2.8 : 0.9}
         color="#b9f36a"
-        distance={4.8}
+        distance={5.0}
         decay={2}
       />
 
-      {/* THE 3D STAUNTON KNIGHT SCULPTURE */}
+      {/* THE 3D BRUSHED TITANIUM STAUNTON KNIGHT SCULPTURE */}
       <ChessKnight
         hoveredVector={activeVector}
         reducedMotion={reducedMotion}
       />
 
-      {/* THE CIRCUIT CHESSBOARD WITH 3 STRATEGIC L-MOVE VECTORS */}
+      {/* THE HIGH-CONTRAST CIRCUIT CHESSBOARD WITH 3 STRATEGIC VECTORS */}
       <CircuitChessboard
         activeVector={activeVector}
         onVectorSelect={onVectorSelect}

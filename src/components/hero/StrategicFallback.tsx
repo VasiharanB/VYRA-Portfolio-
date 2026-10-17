@@ -19,27 +19,28 @@ export function StrategicFallback({ reason }: StrategicFallbackProps) {
       >
         <defs>
           <linearGradient id="knightGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#1e241c" />
-            <stop offset="100%" stopColor="#0c0f0c" />
+            <stop offset="0%" stopColor="#58626c" />
+            <stop offset="100%" stopColor="#22282e" />
           </linearGradient>
           <radialGradient id="auraGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#b9f36a" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#b9f36a" stopOpacity="0" />
+            <stop offset="0%" stopColor="#b9f36a" stopOpacity="0.22" />
+            <stop offset="60%" stopColor="#223024" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="#0b0c0d" stopOpacity="0" />
           </radialGradient>
         </defs>
 
-        {/* Ambient Back Glow */}
-        <circle cx="300" cy="240" r="180" fill="url(#auraGlow)" />
+        {/* Ambient Atmospheric Back Glow */}
+        <circle cx="300" cy="240" r="190" fill="url(#auraGlow)" />
 
-        {/* Isometric Chessboard Isometric Grid Lines */}
-        <g opacity="0.45" stroke="#262d22" strokeWidth="1">
-          {/* Isometric Diamond Grid */}
-          <path d="M300 280 L480 370 L300 460 L120 370 Z" fill="#0d100c" />
-          <path d="M300 280 L390 325 L210 415 L120 370 Z" fill="#131712" />
-          <path d="M390 325 L480 370 L300 460 L210 415 Z" fill="#181d16" />
-          <path d="M210 325 L300 370 L390 325" fill="none" />
-          <path d="M255 347 L345 392" fill="none" />
-          <path d="M165 392 L345 302" fill="none" />
+        {/* High-Contrast Isometric Chessboard Tiles */}
+        <g opacity="0.85" stroke="#16181b" strokeWidth="1">
+          {/* Isometric Diamond Grid with Alternating Bright/Dark Squares */}
+          <path d="M300 280 L480 370 L300 460 L120 370 Z" fill="#20252b" />
+          <path d="M300 280 L390 325 L210 415 L120 370 Z" fill="#5a6672" />
+          <path d="M390 325 L480 370 L300 460 L210 415 Z" fill="#6e7c8a" opacity="0.9" />
+          <path d="M210 325 L300 370 L390 325" fill="none" stroke="#2a323a" strokeWidth="1.5" />
+          <path d="M255 347 L345 392" fill="none" stroke="#2a323a" strokeWidth="1.5" />
+          <path d="M165 392 L345 302" fill="none" stroke="#2a323a" strokeWidth="1.5" />
         </g>
 
         {/* Circuit Bus Lines & Intersection Vias */}
