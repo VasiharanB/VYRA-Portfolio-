@@ -4,6 +4,7 @@ import {
   ExternalLink, Github, Layers3, Linkedin, Mail, MapPin, Menu, MessageSquareText,
   Radio, Sparkles, Trophy, Workflow, X,
 } from 'lucide-react'
+import HeroGyroscope from './components/hero/HeroGyroscope'
 
 const projects = [
   { number: '01', category: 'AI · SUPPORT ENGINEERING', title: 'Smart Issue Tracker', description: 'A support-ticket workflow that finds likely duplicates with semantic embeddings, then uses AI verification for uncertain matches.', stack: ['React', 'TypeScript', 'Django', 'PostgreSQL', 'FAISS'], href: 'https://github.com/VasiharanB/Smart-Issue-Tracker', icon: BrainCircuit, tone: 'violet', featured: 'HYBRID AI PIPELINE' },
@@ -51,7 +52,7 @@ function App() {
           </div>
           <div className="hero-art" aria-label="Abstract VYRA orbital visual">
             <div className="art-topline"><span>FIG. 01 — BUILDING IN MOTION</span><span className="art-live"><i /> VYRA / 001</span></div>
-            <div className="orbital-stage" aria-hidden="true"><div className="orbital-grid" /><div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="orbit orbit-three" /><div className="orbit-core"><span className="core-letter">V</span><span className="core-spark">✳</span></div><div className="orbit-node node-one" /><div className="orbit-node node-two" /><div className="orbit-node node-three" /><div className="orbit-label label-one">IDEA → BUILD</div><div className="orbit-label label-two">HUMAN FIRST</div></div>
+            <HeroGyroscope />
             <div className="art-bottomline"><div><span className="mini-label">CURRENT MODE</span><strong>Learn / Build / Iterate</strong></div><div className="art-index">13° 00' N<br />80° 14' E</div></div>
             <div className="float-chip chip-code"><Code2 size={14} /> Clean code, clear intent</div><div className="float-chip chip-ai"><Sparkles size={14} /> Applied AI</div>
           </div>
