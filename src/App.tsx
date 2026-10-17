@@ -234,14 +234,27 @@ function App() {
               <span className="kicker-divider">/</span>
               <span className="kicker-muted">WEB APPS · BUSINESS TOOLS · APPLIED AI</span>
             </div>
-            <h1>
-              Practical<br />
-              software<span className="headline-period">.</span><br />
-              <span className="headline-outline">Thoughtful</span><br />
-              systems<span className="headline-period">.</span>
+            <h1 className="hero-name-heading">
+              <span className="name-line name-line-first">
+                <span className="name-char-reveal">VASIHARAN</span>
+              </span>
+              <span className="name-line name-line-last">
+                <span className="name-char-reveal">
+                  B<span className="name-accent">.</span>
+                </span>
+              </span>
             </h1>
+
+            {/* Supporting Brand Statement */}
+            <div className="hero-supporting-statement" aria-label="Brand philosophy">
+              <span className="statement-bar" aria-hidden="true" />
+              <p className="statement-text">
+                Practical software<span className="statement-dot">.</span> <span className="statement-outline">Thoughtful</span> systems<span className="statement-dot">.</span>
+              </p>
+            </div>
+
             <p className="hero-description">
-              I’m <strong>Vasiharan B</strong> — a full-stack engineer and freelance builder from Chennai. I design and engineer fast, reliable web applications, bespoke business tools, and real-time systems for founders and modern teams.
+              Full-stack engineer and software builder from Chennai. I design and engineer fast, reliable web applications, custom management software, real-time systems, and practical AI tools where architectural clarity and execution matter.
             </p>
 
             {/* Concise capabilities preview strip */}

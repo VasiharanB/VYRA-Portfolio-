@@ -1,9 +1,13 @@
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useState, useRef, useEffect, useCallback, Suspense, lazy } from 'react'
 import {
-  ArrowUpRight, Layers, ShieldCheck, Zap,
-  Compass, RefreshCw, ExternalLink, ChevronRight
+  ArrowUpRight, ChevronRight, ExternalLink,
+  Layers, ShieldCheck, Zap, Compass, RefreshCw
 } from 'lucide-react'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
+import type { ChessPieceType } from './ProceduralChessPieces'
+
+// Code-split the 3D scroll canvas to keep the initial page bundle lean
+const ChessScrollCanvas = lazy(() => import('./ChessScrollCanvas'))
 
 interface DemonstratedProject {
   id: string
@@ -13,8 +17,8 @@ interface DemonstratedProject {
   repoUrl: string
 }
 
-interface ChessPieceQuality {
-  id: string
+interface ChessChapter {
+  id: ChessPieceType
   number: string
   name: string
   symbol: string
@@ -27,13 +31,13 @@ interface ChessPieceQuality {
   accentTone: string
 }
 
-const CHESS_PIECES: ChessPieceQuality[] = [
+const CHESS_CHAPTERS: ChessChapter[] = [
   {
     id: 'king',
     number: '01',
     name: 'King',
     symbol: '♚',
-    tag: 'PIECE 01 · OWNERSHIP',
+    tag: 'CHAPTER 01 / 06 · OWNERSHIP',
     quality: 'Ownership, Responsibility & Engineering Judgment',
     headline: 'Taking complete accountability for system outcomes, security, and long-term viability.',
     explanation:
@@ -62,7 +66,7 @@ const CHESS_PIECES: ChessPieceQuality[] = [
     number: '02',
     name: 'Queen',
     symbol: '♛',
-    tag: 'PIECE 02 · VERSATILITY',
+    tag: 'CHAPTER 02 / 06 · VERSATILITY',
     quality: 'Versatility Across the Full Stack',
     headline: 'Fluidly navigating frontends, backend APIs, relational databases, and asynchronous pipelines.',
     explanation:
@@ -91,7 +95,7 @@ const CHESS_PIECES: ChessPieceQuality[] = [
     number: '03',
     name: 'Rook',
     symbol: '♜',
-    tag: 'PIECE 03 · STRUCTURE',
+    tag: 'CHAPTER 03 / 06 · STRUCTURE',
     quality: 'Structured Systems, Maintainability & Reliability',
     headline: 'Building bedrock foundations: normalized schemas, defensive error boundaries, and zero-loss persistence.',
     explanation:
@@ -120,7 +124,7 @@ const CHESS_PIECES: ChessPieceQuality[] = [
     number: '04',
     name: 'Bishop',
     symbol: '♝',
-    tag: 'PIECE 04 · ARCHITECTURE',
+    tag: 'CHAPTER 04 / 06 · ARCHITECTURE',
     quality: 'Strategic Thinking & Component Architecture',
     headline: 'Seeing cross-cutting connections: unifying decoupled services, vector search, and data flows.',
     explanation:
@@ -149,9 +153,9 @@ const CHESS_PIECES: ChessPieceQuality[] = [
     number: '05',
     name: 'Knight',
     symbol: '♞',
-    tag: 'PIECE 05 · ADAPTABILITY',
+    tag: 'CHAPTER 05 / 06 · ADAPTABILITY',
     quality: 'Creative Problem-Solving & Adaptability',
-    headline: 'Navigating non-linear paths: resolving race conditions, legacy constraints, and bespoke client demands.',
+    headline: 'Navigating non-linear paths: resolving race conditions, desktop limits, and bespoke client demands.',
     explanation:
       'The knight maneuvers where standard pieces are blocked, jumping past barriers. When faced with complex edge cases — concurrency spikes in real-time bidding, integrating matplotlib canvas figures into Tkinter event loops, or structuring bespoke client workflows — I engineer pragmatic, creative solutions that deliver results without unnecessary complexity.',
     skills: ['Real-Time WebSockets', 'Concurrency Management', 'Tkinter GUI Architecture', 'Pragmatic Problem-Solving'],
@@ -178,7 +182,7 @@ const CHESS_PIECES: ChessPieceQuality[] = [
     number: '06',
     name: 'Pawn',
     symbol: '♟',
-    tag: 'PIECE 06 · EXECUTION',
+    tag: 'CHAPTER 06 / 06 · EXECUTION',
     quality: 'Consistency, Fundamentals, Iteration & Growth',
     headline: 'Mastering the fundamentals: clean code hygiene, thorough preprocessing, and continuous refinement.',
     explanation:
@@ -209,35 +213,46 @@ interface InteractiveChessQualitiesProps {
 }
 
 export function InteractiveChessQualities({ onInspectCaseStudy }: InteractiveChessQualitiesProps) {
-  const [selectedPieceId, setSelectedPieceId] = useState<string>('king')
-  const tabsListRef = useRef<HTMLDivElement>(null)
+  const [activePieceId, setActivePieceId] = useState<ChessPieceType>('king')
+  const chapterRefs = useRef<Map<string, HTMLElement>>(new Map())
   const prefersReducedMotion = useReducedMotion()
 
-  const currentPiece = CHESS_PIECES.find((p) => p.id === selectedPieceId) || CHESS_PIECES[0]
+  const currentChapter = CHESS_CHAPTERS.find((c) => c.id === activePieceId) || CHESS_CHAPTERS[0]
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent, index: number) => {
-    let nextIndex = index
+  // Track natural scroll progress through chapters using IntersectionObserver
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const pieceId = entry.target.getAttribute('data-piece-id') as ChessPieceType
+            if (pieceId) {
+              setActivePieceId(pieceId)
+            }
+          }
+        })
+      },
+      {
+        rootMargin: '-30% 0px -35% 0px',
+        threshold: 0.1,
+      }
+    )
 
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-      e.preventDefault()
-      nextIndex = (index + 1) % CHESS_PIECES.length
-    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-      e.preventDefault()
-      nextIndex = (index - 1 + CHESS_PIECES.length) % CHESS_PIECES.length
-    } else if (e.key === 'Home') {
-      e.preventDefault()
-      nextIndex = 0
-    } else if (e.key === 'End') {
-      e.preventDefault()
-      nextIndex = CHESS_PIECES.length - 1
-    }
+    chapterRefs.current.forEach((el) => {
+      if (el) observer.observe(el)
+    })
 
-    if (nextIndex !== index) {
-      setSelectedPieceId(CHESS_PIECES[nextIndex].id)
-      const buttons = tabsListRef.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
-      buttons?.[nextIndex]?.focus()
-    }
+    return () => observer.disconnect()
   }, [])
+
+  // Fast jump to a specific chapter via click or keyboard
+  const handleJumpToChapter = useCallback((pieceId: ChessPieceType) => {
+    setActivePieceId(pieceId)
+    const target = chapterRefs.current.get(pieceId)
+    if (target) {
+      target.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'center' })
+    }
+  }, [prefersReducedMotion])
 
   return (
     <section className="chess-qualities-section section-wrap section-pad" id="pieces">
@@ -253,129 +268,169 @@ export function InteractiveChessQualities({ onInspectCaseStudy }: InteractiveChe
           </div>
         </div>
         <p className="section-note">
-          Every chess piece has a distinct discipline on the board. Here is how those six qualities translate into real, verified engineering practices across my projects.
+          Scroll through the six chapters below. Each Staunton piece anchors a core engineering discipline demonstrated across my projects.
         </p>
       </div>
 
-      {/* Interactive Chess Board / Rack Selector */}
-      <div
-        ref={tabsListRef}
-        className="chess-selector-rack"
-        role="tablist"
-        aria-label="Chess piece engineering qualities"
-      >
-        {CHESS_PIECES.map((piece, index) => {
-          const isSelected = piece.id === selectedPieceId
+      {/* Chapter Progress Rail & Direct Selection Bar */}
+      <div className="chess-progress-rail" role="tablist" aria-label="Chess chapter progression">
+        {CHESS_CHAPTERS.map((chap, idx) => {
+          const isActive = chap.id === activePieceId
           return (
             <button
-              key={piece.id}
+              key={chap.id}
               role="tab"
-              id={`chess-tab-${piece.id}`}
-              aria-selected={isSelected}
-              aria-controls={`chess-panel-${piece.id}`}
-              tabIndex={isSelected ? 0 : -1}
-              className={`chess-piece-tile ${isSelected ? 'piece-active' : ''}`}
-              style={{ '--piece-accent': piece.accentTone } as React.CSSProperties}
-              onClick={() => setSelectedPieceId(piece.id)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
+              aria-selected={isActive}
+              aria-controls={`chapter-panel-${chap.id}`}
+              className={`chapter-notch-btn ${isActive ? 'notch-active' : ''}`}
+              style={{ '--notch-accent': chap.accentTone } as React.CSSProperties}
+              onClick={() => handleJumpToChapter(chap.id)}
+              title={`Jump to ${chap.name}: ${chap.quality}`}
             >
-              <div className="tile-symbol" aria-hidden="true">
-                {piece.symbol}
-              </div>
-              <div className="tile-text">
-                <span className="tile-number">{piece.number}</span>
-                <strong className="tile-name">{piece.name}</strong>
-              </div>
-              <span className="tile-indicator" aria-hidden="true" />
+              <span className="notch-symbol" aria-hidden="true">{chap.symbol}</span>
+              <span className="notch-num">/{chap.number}</span>
+              <span className="notch-name">{chap.name}</span>
+              <span className="notch-indicator" aria-hidden="true" />
             </button>
           )
         })}
       </div>
 
-      {/* Selected Piece Details Inspector Panel */}
-      <div
-        id={`chess-panel-${currentPiece.id}`}
-        role="tabpanel"
-        aria-labelledby={`chess-tab-${currentPiece.id}`}
-        className="chess-inspector-panel"
-        style={{ '--active-accent': currentPiece.accentTone } as React.CSSProperties}
-      >
-        <div className="inspector-grid">
-          {/* Left Column: Quality & Narrative */}
-          <div className="inspector-narrative">
-            <div className="inspector-badge-row">
-              <span className="inspector-badge">{currentPiece.tag}</span>
-              <span className="inspector-symbol-watermark" aria-hidden="true">
-                {currentPiece.symbol}
-              </span>
+      {/* Main 3D Scroll Narrative Layout */}
+      <div className="chess-scroll-narrative">
+        {/* Sticky 3D Visual Stage (Anchors the scroll on desktop) */}
+        <div className="chess-stage-column">
+          <div
+            className="chess-sticky-viewport"
+            style={{ '--current-accent': currentChapter.accentTone } as React.CSSProperties}
+          >
+            {/* Top Stage Telemetry Header */}
+            <div className="stage-telemetry-top">
+              <span className="stage-telemetry-label">FIG. 04 — DISCIPLINE ANCHOR</span>
+              <span className="stage-telemetry-tag">{currentChapter.tag}</span>
             </div>
 
-            <h3 className="inspector-title">{currentPiece.quality}</h3>
-            <p className="inspector-headline">{currentPiece.headline}</p>
-            <p className="inspector-explanation">{currentPiece.explanation}</p>
+            {/* Persistent 3D Canvas */}
+            <div className="stage-canvas-wrapper">
+              <Suspense
+                fallback={
+                  <div className="stage-canvas-fallback">
+                    <span className="fallback-symbol">{currentChapter.symbol}</span>
+                    <span className="fallback-loading-label">INITIALIZING 3D PIECE...</span>
+                  </div>
+                }
+              >
+                <ChessScrollCanvas
+                  activePieceId={activePieceId}
+                  accentColor={currentChapter.accentTone}
+                  reducedMotion={prefersReducedMotion}
+                />
+              </Suspense>
+            </div>
 
-            <div className="inspector-skills-wrap">
-              <span className="skills-heading">VERIFIED TECHNICAL CAPABILITIES</span>
-              <div className="skills-pill-row">
-                {currentPiece.skills.map((skill) => (
-                  <span key={skill} className="skill-pill">
-                    {skill}
-                  </span>
-                ))}
+            {/* Bottom Stage Telemetry Footer */}
+            <div className="stage-telemetry-bottom">
+              <div className="telemetry-piece-name">
+                <span className="piece-glyph-badge">{currentChapter.symbol}</span>
+                <strong>{currentChapter.name}</strong>
+              </div>
+              <div className="telemetry-piece-number">
+                <span>{currentChapter.number} / 06</span>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Right Column: Demonstrated Projects Evidence */}
-          <div className="inspector-evidence">
-            <div className="evidence-header">
-              <span className="evidence-label">VERIFIED PROJECT EVIDENCE</span>
-              <span className="evidence-count">{currentPiece.projects.length} CASE STUDIES</span>
-            </div>
+        {/* Narrative Chapters Column (Natural Scroll) */}
+        <div className="chess-chapters-column">
+          {CHESS_CHAPTERS.map((chap) => {
+            const isSelected = chap.id === activePieceId
+            return (
+              <article
+                key={chap.id}
+                id={`chapter-panel-${chap.id}`}
+                data-piece-id={chap.id}
+                ref={(el) => {
+                  if (el) chapterRefs.current.set(chap.id, el)
+                }}
+                className={`chapter-card ${isSelected ? 'chapter-active' : ''}`}
+                style={{ '--chapter-accent': chap.accentTone } as React.CSSProperties}
+              >
+                {/* Chapter Meta */}
+                <div className="chapter-header-row">
+                  <span className="chapter-tag">{chap.tag}</span>
+                  <span className="chapter-symbol-watermark" aria-hidden="true">{chap.symbol}</span>
+                </div>
 
-            <div className="evidence-cards-list">
-              {currentPiece.projects.map((proj) => (
-                <div key={proj.id} className="evidence-card">
-                  <div className="evidence-card-top">
-                    <span className="evidence-card-category">{proj.category}</span>
-                    <a
-                      href={proj.repoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="evidence-repo-link"
-                      title={`View ${proj.name} on GitHub`}
-                      aria-label={`View ${proj.name} repository on GitHub`}
-                    >
-                      <ExternalLink size={13} />
-                    </a>
-                  </div>
+                <h3 className="chapter-quality-title">{chap.quality}</h3>
+                <p className="chapter-headline">{chap.headline}</p>
+                <p className="chapter-explanation">{chap.explanation}</p>
 
-                  <h4 className="evidence-card-title">{proj.name}</h4>
-                  <p className="evidence-card-impact">{proj.impact}</p>
-
-                  <div className="evidence-card-actions">
-                    <button
-                      type="button"
-                      className="evidence-inspect-btn"
-                      onClick={() => onInspectCaseStudy(proj.id)}
-                      aria-label={`Inspect case study for ${proj.name}`}
-                    >
-                      <span>Inspect case study</span>
-                      <ChevronRight size={14} />
-                    </button>
-                    <a
-                      href={proj.repoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="evidence-source-link"
-                    >
-                      Source <ArrowUpRight size={12} />
-                    </a>
+                {/* Technical Skills Pills */}
+                <div className="chapter-skills-block">
+                  <span className="skills-block-label">VERIFIED TECHNICAL CAPABILITIES</span>
+                  <div className="skills-pill-row">
+                    {chap.skills.map((skill) => (
+                      <span key={skill} className="skill-pill">
+                        {skill}
+                      </span>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+
+                {/* Demonstrated Project Evidence */}
+                <div className="chapter-evidence-block">
+                  <div className="evidence-header-row">
+                    <span className="evidence-heading-label">DEMONSTRATED IN VYRA PROJECTS</span>
+                    <span className="evidence-count-label">{chap.projects.length} PROJECTS</span>
+                  </div>
+
+                  <div className="evidence-grid">
+                    {chap.projects.map((proj) => (
+                      <div key={proj.id} className="chapter-evidence-card">
+                        <div className="evidence-card-top">
+                          <span className="evidence-card-category">{proj.category}</span>
+                          <a
+                            href={proj.repoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="evidence-repo-link"
+                            title={`View ${proj.name} on GitHub`}
+                            aria-label={`View ${proj.name} repository on GitHub`}
+                          >
+                            <ExternalLink size={13} />
+                          </a>
+                        </div>
+
+                        <h4 className="evidence-card-title">{proj.name}</h4>
+                        <p className="evidence-card-impact">{proj.impact}</p>
+
+                        <div className="evidence-card-actions">
+                          <button
+                            type="button"
+                            className="evidence-inspect-btn"
+                            onClick={() => onInspectCaseStudy(proj.id)}
+                            aria-label={`Inspect case study for ${proj.name}`}
+                          >
+                            <span>Inspect case study</span>
+                            <ChevronRight size={14} />
+                          </button>
+                          <a
+                            href={proj.repoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="evidence-source-link"
+                          >
+                            Source <ArrowUpRight size={12} />
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </article>
+            )
+          })}
         </div>
       </div>
     </section>
