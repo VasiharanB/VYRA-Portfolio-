@@ -9,240 +9,283 @@ interface GyroscopeSceneProps {
 }
 
 export function GyroscopeScene({ isMobile, reducedMotion, onNodeHover }: GyroscopeSceneProps) {
-  const groupRef = useRef<THREE.Group>(null!)
+  const masterGroupRef = useRef<THREE.Group>(null!)
   const outerRingRef = useRef<THREE.Group>(null!)
   const midRingRef = useRef<THREE.Group>(null!)
   const innerRingRef = useRef<THREE.Group>(null!)
   const coreRef = useRef<THREE.Group>(null!)
-  const node1Ref = useRef<THREE.Mesh>(null!)
-  const node2Ref = useRef<THREE.Mesh>(null!)
-  const node3Ref = useRef<THREE.Mesh>(null!)
+  const satellite1Ref = useRef<THREE.Group>(null!)
+  const satellite2Ref = useRef<THREE.Group>(null!)
+  const satellite3Ref = useRef<THREE.Group>(null!)
 
   const { pointer } = useThree()
 
-  // Acid lime brand color & muted palette
-  const colors = useMemo(() => ({
+  // Curated palette tailored strictly to VYRA identity
+  const palette = useMemo(() => ({
     acid: new THREE.Color('#b9f36a'),
-    acidGlow: new THREE.Color('#d2ffa0'),
-    darkSurface: new THREE.Color('#11140e'),
-    ringLine: new THREE.Color('#58624d'),
-    ringAccent: new THREE.Color('#b9f36a'),
-    particle: new THREE.Color('#d8fec0'),
+    acidBright: new THREE.Color('#d8ff9c'),
+    acidGlow: new THREE.Color('#b9f36a'),
+    violetAccent: new THREE.Color('#8e7bf3'),
+    darkMetallic: new THREE.Color('#161a15'),
+    ringLineMuted: new THREE.Color('#464c40'),
+    stardust: new THREE.Color('#d4f7b0'),
   }), [])
 
-  // Procedural particles for ambient telemetry field
-  const particleCount = isMobile ? 36 : 80
+  // Procedural ambient telemetry stardust particles
+  const particleCount = isMobile ? 45 : 110
   const particles = useMemo(() => {
     const positions = new Float32Array(particleCount * 3)
-    const scales = new Float32Array(particleCount)
     for (let i = 0; i < particleCount; i++) {
-      // Distribute in a sphere around the gyroscope
-      const radius = 2.4 + Math.random() * 2.8
+      const radius = 2.0 + Math.random() * 3.4
       const theta = Math.random() * Math.PI * 2
       const phi = Math.acos(Math.random() * 2 - 1)
       positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta)
       positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta)
       positions[i * 3 + 2] = radius * Math.cos(phi)
-      scales[i] = Math.random() * 0.04 + 0.015
     }
-    return { positions, scales }
+    return positions
   }, [particleCount])
 
-  // Custom ring geometry created procedurally
-  const ringGeometries = useMemo(() => ({
-    outer: new THREE.TorusGeometry(2.35, 0.014, 16, 100),
-    mid: new THREE.TorusGeometry(1.85, 0.018, 16, 90),
-    inner: new THREE.TorusGeometry(1.35, 0.014, 16, 80),
-    coreIcosa: new THREE.IcosahedronGeometry(0.72, 0),
-    coreInner: new THREE.OctahedronGeometry(0.48, 0),
+  // Custom procedural ring geometries with bevels & fine profile
+  const geometries = useMemo(() => ({
+    outerGimbal: new THREE.TorusGeometry(2.45, 0.02, 16, 120),
+    midGimbal: new THREE.TorusGeometry(1.95, 0.022, 16, 100),
+    innerGimbal: new THREE.TorusGeometry(1.45, 0.018, 16, 80),
+    equatorBelt: new THREE.TorusGeometry(2.15, 0.012, 12, 90),
+    coreCage: new THREE.IcosahedronGeometry(0.78, 0),
+    coreInnerGem: new THREE.OctahedronGeometry(0.52, 0),
+    coreNucleus: new THREE.SphereGeometry(0.24, 24, 24),
+    nodeSphere: new THREE.SphereGeometry(0.08, 16, 16),
+    nodeHalo: new THREE.RingGeometry(0.12, 0.16, 32),
   }), [])
 
-  // Animation frame loop
+  // Smooth frame loop with damped parallax & multi-axis gimbal mechanics
   useFrame((state, delta) => {
-    if (!groupRef.current) return
+    if (!masterGroupRef.current) return
 
-    // Pointer parallax with inertia damping
+    // Smooth cursor-reactive camera & object tilt
     if (!reducedMotion) {
-      const targetX = pointer.x * 0.35
-      const targetY = pointer.y * 0.25
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetX, 0.06)
-      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, -targetY, 0.06)
+      const targetRotationY = pointer.x * 0.42
+      const targetRotationX = -pointer.y * 0.32
+      masterGroupRef.current.rotation.y = THREE.MathUtils.lerp(
+        masterGroupRef.current.rotation.y,
+        targetRotationY,
+        0.05
+      )
+      masterGroupRef.current.rotation.x = THREE.MathUtils.lerp(
+        masterGroupRef.current.rotation.x,
+        targetRotationX,
+        0.05
+      )
 
-      // Continuous gimbal spin on independent axes
+      // Gimbal rotation choreography on independent axes
+      const time = state.clock.elapsedTime
+
       if (outerRingRef.current) {
-        outerRingRef.current.rotation.z += delta * 0.22
-        outerRingRef.current.rotation.x += delta * 0.08
+        outerRingRef.current.rotation.z += delta * 0.2
+        outerRingRef.current.rotation.x += delta * 0.07
       }
       if (midRingRef.current) {
-        midRingRef.current.rotation.y -= delta * 0.28
-        midRingRef.current.rotation.z += delta * 0.12
+        midRingRef.current.rotation.y -= delta * 0.26
+        midRingRef.current.rotation.z += delta * 0.14
       }
       if (innerRingRef.current) {
-        innerRingRef.current.rotation.x += delta * 0.35
-        innerRingRef.current.rotation.y += delta * 0.18
+        innerRingRef.current.rotation.x += delta * 0.32
+        innerRingRef.current.rotation.y -= delta * 0.18
       }
       if (coreRef.current) {
-        coreRef.current.rotation.y += delta * 0.4
-        coreRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.8) * 0.15
+        coreRef.current.rotation.y += delta * 0.38
+        coreRef.current.rotation.z = Math.sin(time * 0.7) * 0.18
+        // Breathing scale pulse
+        const pulse = 1 + Math.sin(time * 1.8) * 0.04
+        coreRef.current.scale.set(pulse, pulse, pulse)
       }
 
-      // Orbital positions for satellite telemetry nodes
-      const time = state.clock.elapsedTime
-      if (node1Ref.current) {
-        const a1 = time * 0.65
-        node1Ref.current.position.set(Math.cos(a1) * 2.35, Math.sin(a1) * 2.35, Math.sin(a1 * 0.5) * 0.3)
+      // Orbiting telemetry satellites
+      if (satellite1Ref.current) {
+        const a1 = time * 0.6
+        satellite1Ref.current.position.set(
+          Math.cos(a1) * 2.45,
+          Math.sin(a1) * 2.45,
+          Math.sin(a1 * 0.8) * 0.4
+        )
       }
-      if (node2Ref.current) {
-        const a2 = -time * 0.85 + 1.2
-        node2Ref.current.position.set(Math.cos(a2) * 1.85, Math.sin(a2 * 0.6) * 0.4, Math.sin(a2) * 1.85)
+      if (satellite2Ref.current) {
+        const a2 = -time * 0.75 + 1.4
+        satellite2Ref.current.position.set(
+          Math.cos(a2) * 1.95,
+          Math.sin(a2 * 0.5) * 0.6,
+          Math.sin(a2) * 1.95
+        )
       }
-      if (node3Ref.current) {
-        const a3 = time * 1.1 + 2.5
-        node3Ref.current.position.set(Math.sin(a3 * 0.8) * 0.3, Math.cos(a3) * 1.35, Math.sin(a3) * 1.35)
+      if (satellite3Ref.current) {
+        const a3 = time * 0.95 + 2.8
+        satellite3Ref.current.position.set(
+          Math.sin(a3 * 0.6) * 0.4,
+          Math.cos(a3) * 1.45,
+          Math.sin(a3) * 1.45
+        )
       }
     }
   })
 
   return (
-    <group ref={groupRef}>
-      {/* Lighting tailored to dark theme */}
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[4, 5, 4]} intensity={0.8} color="#ffffff" />
-      <pointLight position={[0, 0, 0]} intensity={1.8} color={colors.acid} distance={5} decay={2} />
-      <pointLight position={[-3, -2, -2]} intensity={0.6} color="#8e7bf3" distance={6} decay={2} />
+    <group ref={masterGroupRef}>
+      {/* Precision atmospheric lighting */}
+      <ambientLight intensity={0.45} />
+      <directionalLight position={[5, 6, 5]} intensity={0.9} color="#ffffff" />
+      <directionalLight position={[-4, -3, -3]} intensity={0.4} color={palette.violetAccent} />
+      <pointLight position={[0, 0, 0]} intensity={2.2} color={palette.acid} distance={6} decay={2} />
+      <pointLight position={[2, -2, 2]} intensity={0.8} color={palette.acidBright} distance={4} decay={2} />
 
-      {/* Outer Gimbal Ring */}
-      <group ref={outerRingRef} rotation={[0.4, 0.2, 0]}>
-        <mesh geometry={ringGeometries.outer}>
+      {/* OUTER GIMBAL RING (Technical Coordinate Ring) */}
+      <group ref={outerRingRef} rotation={[0.45, 0.2, 0]}>
+        <mesh geometry={geometries.outerGimbal}>
           <meshStandardMaterial
-            color={colors.ringLine}
-            roughness={0.3}
-            metalness={0.8}
-            wireframe={false}
+            color={palette.ringLineMuted}
+            roughness={0.25}
+            metalness={0.85}
           />
         </mesh>
-        {/* Ring segment ticks */}
-        <mesh position={[2.35, 0, 0]}>
-          <boxGeometry args={[0.08, 0.04, 0.04]} />
-          <meshBasicMaterial color={colors.acid} />
-        </mesh>
-        <mesh position={[-2.35, 0, 0]}>
-          <boxGeometry args={[0.08, 0.04, 0.04]} />
-          <meshBasicMaterial color={colors.acid} />
+        {/* Fine coordinate notches at 90-degree marks */}
+        {[0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2].map((angle, idx) => (
+          <mesh key={idx} position={[Math.cos(angle) * 2.45, Math.sin(angle) * 2.45, 0]}>
+            <boxGeometry args={[0.07, 0.035, 0.035]} />
+            <meshBasicMaterial color={palette.acid} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* MIDDLE GIMBAL RING (Emissive Acid Line) */}
+      <group ref={midRingRef} rotation={[-0.55, 0.65, 0.35]}>
+        <mesh geometry={geometries.midGimbal}>
+          <meshStandardMaterial
+            color={palette.acid}
+            emissive={palette.acid}
+            emissiveIntensity={0.3}
+            roughness={0.15}
+            metalness={0.9}
+          />
         </mesh>
       </group>
 
-      {/* Middle Gimbal Ring */}
-      <group ref={midRingRef} rotation={[-0.5, 0.6, 0.4]}>
-        <mesh geometry={ringGeometries.mid}>
+      {/* EQUATORIAL BELT RING */}
+      <group rotation={[1.1, -0.3, 0.8]}>
+        <mesh geometry={geometries.equatorBelt}>
           <meshStandardMaterial
-            color={colors.acid}
-            emissive={colors.acid}
-            emissiveIntensity={0.25}
-            roughness={0.2}
+            color={palette.ringLineMuted}
+            roughness={0.3}
+            metalness={0.8}
+            wireframe={true}
+          />
+        </mesh>
+      </group>
+
+      {/* INNER GIMBAL RING */}
+      <group ref={innerRingRef} rotation={[0.85, -0.45, 0.25]}>
+        <mesh geometry={geometries.innerGimbal}>
+          <meshStandardMaterial
+            color={palette.darkMetallic}
+            emissive={palette.acid}
+            emissiveIntensity={0.15}
+            roughness={0.3}
             metalness={0.85}
           />
         </mesh>
       </group>
 
-      {/* Inner Gimbal Ring */}
-      <group ref={innerRingRef} rotation={[0.8, -0.4, 0.2]}>
-        <mesh geometry={ringGeometries.inner}>
+      {/* SATELLITE TELEMETRY NODES (Interactive Raycast Targets) */}
+      <group
+        ref={satellite1Ref}
+        onPointerOver={() => onNodeHover?.('NODE / 01 · IDEA → BUILD')}
+        onPointerOut={() => onNodeHover?.(null)}
+      >
+        <mesh geometry={geometries.nodeSphere}>
           <meshStandardMaterial
-            color={colors.ringLine}
-            roughness={0.4}
-            metalness={0.7}
+            color={palette.acid}
+            emissive={palette.acid}
+            emissiveIntensity={0.95}
+            roughness={0.1}
+          />
+        </mesh>
+        <mesh geometry={geometries.nodeHalo} rotation={[Math.PI / 2, 0, 0]}>
+          <meshBasicMaterial color={palette.acid} transparent opacity={0.4} side={THREE.DoubleSide} />
+        </mesh>
+      </group>
+
+      <group
+        ref={satellite2Ref}
+        onPointerOver={() => onNodeHover?.('NODE / 02 · HUMAN FIRST')}
+        onPointerOut={() => onNodeHover?.(null)}
+      >
+        <mesh geometry={geometries.nodeSphere}>
+          <meshStandardMaterial
+            color="#f2f3eb"
+            emissive="#f2f3eb"
+            emissiveIntensity={0.65}
+            roughness={0.2}
           />
         </mesh>
       </group>
 
-      {/* Telemetry Satellites / Nodes */}
-      <mesh
-        ref={node1Ref}
-        onPointerOver={() => onNodeHover?.('NODE / 01 · IDEA → BUILD')}
-        onPointerOut={() => onNodeHover?.(null)}
-      >
-        <sphereGeometry args={[0.08, 16, 16]} />
-        <meshStandardMaterial
-          color={colors.acid}
-          emissive={colors.acid}
-          emissiveIntensity={0.8}
-          roughness={0.1}
-        />
-      </mesh>
-
-      <mesh
-        ref={node2Ref}
-        onPointerOver={() => onNodeHover?.('NODE / 02 · HUMAN FIRST')}
-        onPointerOut={() => onNodeHover?.(null)}
-      >
-        <sphereGeometry args={[0.065, 16, 16]} />
-        <meshStandardMaterial
-          color="#f2f3eb"
-          emissive="#f2f3eb"
-          emissiveIntensity={0.5}
-          roughness={0.2}
-        />
-      </mesh>
-
-      <mesh
-        ref={node3Ref}
+      <group
+        ref={satellite3Ref}
         onPointerOver={() => onNodeHover?.('NODE / 03 · SYSTEMS MINDED')}
         onPointerOut={() => onNodeHover?.(null)}
       >
-        <sphereGeometry args={[0.055, 16, 16]} />
-        <meshStandardMaterial
-          color={colors.acid}
-          emissive={colors.acid}
-          emissiveIntensity={0.9}
-        />
-      </mesh>
-
-      {/* Central Monolithic Core */}
-      <group ref={coreRef}>
-        {/* Outer faceted shield (translucent dark obsidian + acid edges) */}
-        <mesh geometry={ringGeometries.coreIcosa}>
+        <mesh geometry={geometries.nodeSphere}>
           <meshStandardMaterial
-            color={colors.darkSurface}
+            color={palette.acid}
+            emissive={palette.acid}
+            emissiveIntensity={0.9}
+          />
+        </mesh>
+      </group>
+
+      {/* CENTRAL MONOLITHIC CORE */}
+      <group ref={coreRef}>
+        {/* Outer faceted structural cage (Acid-edged geometric polyhedron) */}
+        <mesh geometry={geometries.coreCage}>
+          <meshStandardMaterial
+            color={palette.darkMetallic}
+            emissive={palette.acid}
+            emissiveIntensity={0.25}
+            wireframe={true}
             roughness={0.2}
             metalness={0.9}
-            wireframe={true}
-            emissive={colors.acid}
-            emissiveIntensity={0.15}
           />
         </mesh>
 
-        {/* Solid faceted inner gem */}
-        <mesh geometry={ringGeometries.coreInner}>
+        {/* Inner solid obsidian crystal */}
+        <mesh geometry={geometries.coreInnerGem}>
           <meshStandardMaterial
-            color="#141812"
-            emissive={colors.acid}
-            emissiveIntensity={0.35}
+            color="#0e120c"
+            emissive={palette.acid}
+            emissiveIntensity={0.45}
             roughness={0.1}
             metalness={0.95}
           />
         </mesh>
 
-        {/* Central glowing core nucleus */}
-        <mesh>
-          <sphereGeometry args={[0.22, 24, 24]} />
-          <meshBasicMaterial color={colors.acidGlow} />
+        {/* Central glowing nuclear core */}
+        <mesh geometry={geometries.coreNucleus}>
+          <meshBasicMaterial color={palette.acidBright} />
         </mesh>
       </group>
 
-      {/* Ambient Particle Telemetry Field */}
+      {/* AMBIENT STARDUST / TELEMETRY PARTICLES */}
       <points>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            args={[particles.positions, 3]}
+            args={[particles, 3]}
           />
         </bufferGeometry>
         <pointsMaterial
-          size={0.035}
-          color={colors.particle}
+          size={isMobile ? 0.03 : 0.04}
+          color={palette.stardust}
           transparent
-          opacity={0.65}
+          opacity={0.6}
           sizeAttenuation
         />
       </points>

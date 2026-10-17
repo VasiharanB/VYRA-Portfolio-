@@ -60,7 +60,7 @@ export function GyroscopeCanvas({ reducedMotion, onContextLoss }: GyroscopeCanva
         position: 'relative',
         width: '100%',
         height: '100%',
-        minHeight: isMobile ? '300px' : '390px',
+        minHeight: isMobile ? '340px' : '460px',
         overflow: 'hidden',
       }}
       aria-label="Interactive 3D Gyroscope Engine"

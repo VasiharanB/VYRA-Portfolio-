@@ -5,6 +5,9 @@ import {
   Radio, Sparkles, Trophy, Workflow, X,
 } from 'lucide-react'
 import HeroGyroscope from './components/hero/HeroGyroscope'
+import LoadingIntro from './components/intro/LoadingIntro'
+import CustomCursor from './components/cursor/CustomCursor'
+import InteractiveProjectCard from './components/work/InteractiveProjectCard'
 
 const projects = [
   { number: '01', category: 'AI · SUPPORT ENGINEERING', title: 'Smart Issue Tracker', description: 'A support-ticket workflow that finds likely duplicates with semantic embeddings, then uses AI verification for uncertain matches.', stack: ['React', 'TypeScript', 'Django', 'PostgreSQL', 'FAISS'], href: 'https://github.com/VasiharanB/Smart-Issue-Tracker', icon: BrainCircuit, tone: 'violet', featured: 'HYBRID AI PIPELINE' },
@@ -29,9 +32,12 @@ function SectionHeading({ index, eyebrow, title, note }: { index: string; eyebro
 }
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [showIntro, setShowIntro] = useState(true)
   const closeMenu = () => setMenuOpen(false)
   return (
     <div className="site-shell">
+      <CustomCursor />
+      {showIntro && <LoadingIntro onComplete={() => setShowIntro(false)} />}
       <a className="skip-link" href="#main">Skip to content</a><div className="ambient ambient-a" aria-hidden="true" /><div className="ambient ambient-b" aria-hidden="true" />
       <header className="site-header"><div className="nav-wrap">
         <a className="brand" href="#home" aria-label="VYRA home" onClick={closeMenu}><span className="brand-mark"><span>V</span></span><span className="brand-type"><strong>VYRA<span>.</span></strong><small>BY VASIHARAN</small></span></a>
@@ -61,11 +67,11 @@ function App() {
         <div className="ticker" aria-label="Areas of work"><div className="ticker-track">{['FULL-STACK DEVELOPMENT', 'AI-ASSISTED SYSTEMS', 'THOUGHTFUL INTERFACES', 'BACKEND WORKFLOWS', 'FULL-STACK DEVELOPMENT', 'AI-ASSISTED SYSTEMS', 'THOUGHTFUL INTERFACES', 'BACKEND WORKFLOWS'].map((item, index) => <span className="ticker-item" key={item + index}>{item}<i>✳</i></span>)}</div></div>
         <section className="work-section section-wrap section-pad" id="work">
           <SectionHeading index="02" eyebrow="A FEW THINGS I’VE BUILT" title={<>Selected work<span className="headline-period">.</span></>} note="Different problems, different stacks — one goal: make the system do something useful." />
-          <div className="project-grid">{projects.map((project) => { const ProjectIcon = project.icon; return <article className={'project-card tone-' + project.tone} key={project.number}>
-            <div className="project-card-top"><span className="project-number">/{project.number}</span><a className="project-open" href={project.href} target="_blank" rel="noreferrer" aria-label={'Open ' + project.title + ' repository on GitHub'}><ArrowUpRight size={18} /></a></div>
-            <div className="project-visual"><div className="visual-grid" /><div className="visual-orbit visual-orbit-a" /><div className="visual-orbit visual-orbit-b" /><div className="visual-icon"><ProjectIcon size={29} strokeWidth={1.5} /></div><span className="visual-code">{project.featured}</span><span className="visual-index">{project.number} / 06</span></div>
-            <div className="project-body"><p className="project-category">{project.category}</p><h3>{project.title}</h3><p className="project-description">{project.description}</p><div className="project-tags">{project.stack.map((technology) => <span key={technology}>{technology}</span>)}</div><a className="text-link" href={project.href} target="_blank" rel="noreferrer">View repository <ExternalLink size={14} /></a></div>
-          </article> })}</div>
+          <div className="project-grid">
+            {projects.map((project) => (
+              <InteractiveProjectCard key={project.number} project={project} />
+            ))}
+          </div>
           <div className="more-work"><div className="more-work-copy"><span className="eyebrow">ALWAYS MORE IN THE WORKSHOP</span><p>Want to see more experiments and builds?</p></div><div className="more-work-links"><a href="https://github.com/VasiharanB/Big-Bull" target="_blank" rel="noreferrer">The Big Bull <ArrowUpRight size={14} /></a><a href="https://github.com/VasiharanB" target="_blank" rel="noreferrer">All repositories <ArrowUpRight size={14} /></a></div></div>
         </section>
         <section className="about-section section-pad" id="about"><div className="section-wrap">
@@ -84,7 +90,7 @@ function App() {
           <div className="contact-bottom"><span><span className="status-dot" /> OPEN TO INTERESTING CONVERSATIONS</span><span>CHENNAI, INDIA · IST (UTC+5:30)</span></div>
         </div></section>
       </main>
-      <footer className="site-footer section-wrap"><a className="brand footer-brand" href="#home" aria-label="Back to top"><span className="brand-mark"><span>V</span></span><span className="brand-type"><strong>VYRA<span>.</span></strong><small>BY VASIHARAN</small></span></a><p>Made with intent, curiosity, and a little too much coffee.</p><div className="footer-right"><span>© {new Date().getFullYear()} VASIHARAN B</span><a href="#home" aria-label="Back to top"><ArrowRight size={17} /></a></div></footer>
+      <footer className="site-footer section-wrap"><a className="brand footer-brand" href="#home" aria-label="Back to top"><span className="brand-mark"><span>V</span></span><span className="brand-type"><strong>VYRA<span>.</span></strong><small>BY VASIHARAN</small></span></a><p>Made with intent, curiosity, and a little too much coffee.</p><div className="footer-right"><span>© {new Date().getFullYear()} VASIHARAN B</span><button type="button" className="replay-intro-btn" onClick={() => { try { sessionStorage.removeItem('vyra_intro_seen') } catch {} setShowIntro(true) }} title="Replay initialization intro">[REPLAY INTRO]</button><a href="#home" aria-label="Back to top"><ArrowRight size={17} /></a></div></footer>
     </div>
   )
 }
