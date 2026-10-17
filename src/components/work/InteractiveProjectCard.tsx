@@ -1,5 +1,6 @@
 import React, { useRef, useState, useCallback, type ElementType } from 'react'
 import { ArrowUpRight, ExternalLink } from 'lucide-react'
+import { useReducedMotion } from '../../hooks/useReducedMotion'
 
 export interface ProjectData {
   number: string
@@ -19,6 +20,7 @@ interface InteractiveProjectCardProps {
 
 export function InteractiveProjectCard({ project }: InteractiveProjectCardProps) {
   const cardRef = useRef<HTMLElement>(null)
+  const prefersReducedMotion = useReducedMotion()
   const [tilt, setTilt] = useState<{ rotateX: number; rotateY: number }>({ rotateX: 0, rotateY: 0 })
   const [spotlight, setSpotlight] = useState<{ x: number; y: number; opacity: number }>({
     x: 0,
@@ -32,18 +34,20 @@ export function InteractiveProjectCard({ project }: InteractiveProjectCardProps)
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
 
-    // Calculate normalized position between -1 and 1
-    const normX = (x / rect.width) * 2 - 1
-    const normY = (y / rect.height) * 2 - 1
+    if (!prefersReducedMotion) {
+      // Calculate normalized position between -1 and 1
+      const normX = (x / rect.width) * 2 - 1
+      const normY = (y / rect.height) * 2 - 1
 
-    // Subtly tilt card (max 6 degrees)
-    setTilt({
-      rotateX: -normY * 6,
-      rotateY: normX * 6,
-    })
+      // Subtly tilt card (max 6 degrees)
+      setTilt({
+        rotateX: -normY * 6,
+        rotateY: normX * 6,
+      })
+    }
 
     setSpotlight({ x, y, opacity: 1 })
-  }, [])
+  }, [prefersReducedMotion])
 
   const handleMouseLeave = useCallback(() => {
     setTilt({ rotateX: 0, rotateY: 0 })

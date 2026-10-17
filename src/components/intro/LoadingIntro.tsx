@@ -6,16 +6,18 @@ interface LoadingIntroProps {
 }
 
 const TELEMETRY_STEPS = [
-  'SYS // BOOT SEQUENCE INITIATED',
-  'CORE // CALIBRATING 3D SPATIAL REACTOR',
-  'TELEMETRY // SYNCING SATELLITE NODES',
+  'SYS // INITIATING DIGITAL LABORATORY',
+  'CORE // CALIBRATING 3D SPATIAL GIMBAL',
+  'TELEMETRY // ALIGNING SATELLITE NODES',
   'INTERFACE // READY · CHENNAI [13°00\'N 80°14\'E]',
 ]
+
+const STAGE_STATUS = ['[INITIALIZING]', '[CALIBRATING]', '[SYNCING]', '[SYSTEM READY]']
 
 export function LoadingIntro({ onComplete }: LoadingIntroProps) {
   const prefersReducedMotion = useReducedMotion()
   const [stepIndex, setStepIndex] = useState(0)
-  const [progress, setProgress] = useState(0)
+  const [progressRatio, setProgressRatio] = useState(0)
   const [isFadingOut, setIsFadingOut] = useState(false)
 
   const handleFinish = useCallback(() => {
@@ -23,15 +25,15 @@ export function LoadingIntro({ onComplete }: LoadingIntroProps) {
     try {
       sessionStorage.setItem('vyra_intro_seen', 'true')
     } catch {
-      // Ignore storage errors in incognito/restricted environments
+      // Ignore storage errors in restricted/incognito environments
     }
     setTimeout(() => {
       onComplete()
-    }, 600)
+    }, 550)
   }, [onComplete])
 
   useEffect(() => {
-    // If reduced motion is requested or already seen in this session, skip immediately
+    // If reduced motion is preferred or already seen in this session, skip immediately
     if (prefersReducedMotion) {
       onComplete()
       return
@@ -43,27 +45,25 @@ export function LoadingIntro({ onComplete }: LoadingIntroProps) {
         return
       }
     } catch {
-      // Continue with intro if storage is restricted
+      // Continue if session storage is unavailable
     }
 
-    // Step animation sequence over 1.8 seconds
+    // Snappy, intentional boot animation sequence over ~1.3 seconds
     const interval = setInterval(() => {
-      setProgress((prev) => {
-        const next = prev + 2.5
-        if (next >= 100) {
+      setProgressRatio((prev) => {
+        const next = prev + 0.035
+        if (next >= 1) {
           clearInterval(interval)
           handleFinish()
-          return 100
+          return 1
         }
-        // Update telemetry status based on progress thresholds
-        if (next > 75) setStepIndex(3)
-        else if (next > 48) setStepIndex(2)
-        else if (next > 22) setStepIndex(1)
+        if (next > 0.75) setStepIndex(3)
+        else if (next > 0.48) setStepIndex(2)
+        else if (next > 0.22) setStepIndex(1)
         return next
       })
     }, 45)
 
-    // Keyboard listener for Escape key to skip intro
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key === 'Enter') {
         clearInterval(interval)
@@ -129,12 +129,12 @@ export function LoadingIntro({ onComplete }: LoadingIntroProps) {
               className="intro-v-path"
               style={{
                 strokeDasharray: 140,
-                strokeDashoffset: Math.max(0, 140 - (progress / 100) * 140),
+                strokeDashoffset: Math.max(0, 140 - progressRatio * 140),
               }}
             />
 
             {/* Central accent spark */}
-            {progress > 60 && (
+            {progressRatio > 0.6 && (
               <circle cx="50" cy="50" r="3" fill="var(--acid)" className="intro-spark" />
             )}
           </svg>
@@ -148,18 +148,18 @@ export function LoadingIntro({ onComplete }: LoadingIntroProps) {
           <small>DIGITAL ENGINEERING LABORATORY</small>
         </div>
 
-        {/* Real-time Telemetry Status Text */}
+        {/* Real-time Telemetry Status Text — Intentional boot telemetry without fake percentage */}
         <div className="intro-telemetry-readout">
           <p className="intro-step-text">{TELEMETRY_STEPS[stepIndex]}</p>
           <div className="intro-progress-bar-wrap">
             <div
               className="intro-progress-bar-fill"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${progressRatio * 100}%` }}
             />
           </div>
           <div className="intro-coords-foot">
             <span>LAT 13° 00' N</span>
-            <span>[{Math.round(progress)}%]</span>
+            <span style={{ color: 'var(--acid)', fontWeight: 600 }}>{STAGE_STATUS[stepIndex]}</span>
             <span>LON 80° 14' E</span>
           </div>
         </div>
@@ -168,7 +168,7 @@ export function LoadingIntro({ onComplete }: LoadingIntroProps) {
       {/* Bottom Technical Stamp */}
       <div className="intro-bottombar">
         <span>VASIHARAN B // FULL-STACK DEVELOPER & SYSTEMS ENGINEER</span>
-        <span>INITIALIZING SPATIAL CANVAS...</span>
+        <span>STANDBY · LOADING SPATIAL REACTOR...</span>
       </div>
     </div>
   )

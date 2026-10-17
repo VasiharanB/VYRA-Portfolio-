@@ -25,18 +25,18 @@ export function GyroscopeScene({ isMobile, reducedMotion, onNodeHover }: Gyrosco
     acid: new THREE.Color('#b9f36a'),
     acidBright: new THREE.Color('#d8ff9c'),
     acidGlow: new THREE.Color('#b9f36a'),
-    violetAccent: new THREE.Color('#8e7bf3'),
-    darkMetallic: new THREE.Color('#161a15'),
-    ringLineMuted: new THREE.Color('#464c40'),
+    coolRim: new THREE.Color('#7a6ef5'),
+    darkMetallic: new THREE.Color('#141713'),
+    ringLineMuted: new THREE.Color('#383e33'),
     stardust: new THREE.Color('#d4f7b0'),
   }), [])
 
-  // Procedural ambient telemetry stardust particles
-  const particleCount = isMobile ? 45 : 110
+  // Procedural ambient telemetry stardust particles for volumetric depth
+  const particleCount = isMobile ? 50 : 130
   const particles = useMemo(() => {
     const positions = new Float32Array(particleCount * 3)
     for (let i = 0; i < particleCount; i++) {
-      const radius = 2.0 + Math.random() * 3.4
+      const radius = 1.9 + Math.random() * 3.6
       const theta = Math.random() * Math.PI * 2
       const phi = Math.acos(Math.random() * 2 - 1)
       positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta)
@@ -46,14 +46,14 @@ export function GyroscopeScene({ isMobile, reducedMotion, onNodeHover }: Gyrosco
     return positions
   }, [particleCount])
 
-  // Custom procedural ring geometries with bevels & fine profile
+  // Custom procedural ring geometries with bevels & fine engineering profile
   const geometries = useMemo(() => ({
-    outerGimbal: new THREE.TorusGeometry(2.45, 0.02, 16, 120),
-    midGimbal: new THREE.TorusGeometry(1.95, 0.022, 16, 100),
-    innerGimbal: new THREE.TorusGeometry(1.45, 0.018, 16, 80),
-    equatorBelt: new THREE.TorusGeometry(2.15, 0.012, 12, 90),
-    coreCage: new THREE.IcosahedronGeometry(0.78, 0),
-    coreInnerGem: new THREE.OctahedronGeometry(0.52, 0),
+    outerGimbal: new THREE.TorusGeometry(2.5, 0.022, 16, 120),
+    midGimbal: new THREE.TorusGeometry(2.0, 0.024, 16, 100),
+    innerGimbal: new THREE.TorusGeometry(1.5, 0.02, 16, 80),
+    equatorBelt: new THREE.TorusGeometry(2.25, 0.012, 12, 90),
+    coreCage: new THREE.IcosahedronGeometry(0.82, 0),
+    coreInnerGem: new THREE.OctahedronGeometry(0.54, 0),
     coreNucleus: new THREE.SphereGeometry(0.24, 24, 24),
     nodeSphere: new THREE.SphereGeometry(0.08, 16, 16),
     nodeHalo: new THREE.RingGeometry(0.12, 0.16, 32),
@@ -65,8 +65,8 @@ export function GyroscopeScene({ isMobile, reducedMotion, onNodeHover }: Gyrosco
 
     // Smooth cursor-reactive camera & object tilt
     if (!reducedMotion) {
-      const targetRotationY = pointer.x * 0.42
-      const targetRotationX = -pointer.y * 0.32
+      const targetRotationY = pointer.x * 0.4
+      const targetRotationX = -pointer.y * 0.3
       masterGroupRef.current.rotation.y = THREE.MathUtils.lerp(
         masterGroupRef.current.rotation.y,
         targetRotationY,
@@ -82,48 +82,48 @@ export function GyroscopeScene({ isMobile, reducedMotion, onNodeHover }: Gyrosco
       const time = state.clock.elapsedTime
 
       if (outerRingRef.current) {
-        outerRingRef.current.rotation.z += delta * 0.2
-        outerRingRef.current.rotation.x += delta * 0.07
+        outerRingRef.current.rotation.z += delta * 0.18
+        outerRingRef.current.rotation.x += delta * 0.06
       }
       if (midRingRef.current) {
-        midRingRef.current.rotation.y -= delta * 0.26
-        midRingRef.current.rotation.z += delta * 0.14
+        midRingRef.current.rotation.y -= delta * 0.24
+        midRingRef.current.rotation.z += delta * 0.12
       }
       if (innerRingRef.current) {
-        innerRingRef.current.rotation.x += delta * 0.32
-        innerRingRef.current.rotation.y -= delta * 0.18
+        innerRingRef.current.rotation.x += delta * 0.3
+        innerRingRef.current.rotation.y -= delta * 0.16
       }
       if (coreRef.current) {
-        coreRef.current.rotation.y += delta * 0.38
-        coreRef.current.rotation.z = Math.sin(time * 0.7) * 0.18
-        // Breathing scale pulse
-        const pulse = 1 + Math.sin(time * 1.8) * 0.04
+        coreRef.current.rotation.y += delta * 0.35
+        coreRef.current.rotation.z = Math.sin(time * 0.7) * 0.16
+        // Subtle breathing pulse
+        const pulse = 1 + Math.sin(time * 1.8) * 0.035
         coreRef.current.scale.set(pulse, pulse, pulse)
       }
 
       // Orbiting telemetry satellites
       if (satellite1Ref.current) {
-        const a1 = time * 0.6
+        const a1 = time * 0.55
         satellite1Ref.current.position.set(
-          Math.cos(a1) * 2.45,
-          Math.sin(a1) * 2.45,
+          Math.cos(a1) * 2.5,
+          Math.sin(a1) * 2.5,
           Math.sin(a1 * 0.8) * 0.4
         )
       }
       if (satellite2Ref.current) {
-        const a2 = -time * 0.75 + 1.4
+        const a2 = -time * 0.7 + 1.4
         satellite2Ref.current.position.set(
-          Math.cos(a2) * 1.95,
+          Math.cos(a2) * 2.0,
           Math.sin(a2 * 0.5) * 0.6,
-          Math.sin(a2) * 1.95
+          Math.sin(a2) * 2.0
         )
       }
       if (satellite3Ref.current) {
-        const a3 = time * 0.95 + 2.8
+        const a3 = time * 0.88 + 2.8
         satellite3Ref.current.position.set(
           Math.sin(a3 * 0.6) * 0.4,
-          Math.cos(a3) * 1.45,
-          Math.sin(a3) * 1.45
+          Math.cos(a3) * 1.5,
+          Math.sin(a3) * 1.5
         )
       }
     }
@@ -131,65 +131,65 @@ export function GyroscopeScene({ isMobile, reducedMotion, onNodeHover }: Gyrosco
 
   return (
     <group ref={masterGroupRef}>
-      {/* Precision atmospheric lighting */}
-      <ambientLight intensity={0.45} />
-      <directionalLight position={[5, 6, 5]} intensity={0.9} color="#ffffff" />
-      <directionalLight position={[-4, -3, -3]} intensity={0.4} color={palette.violetAccent} />
-      <pointLight position={[0, 0, 0]} intensity={2.2} color={palette.acid} distance={6} decay={2} />
-      <pointLight position={[2, -2, 2]} intensity={0.8} color={palette.acidBright} distance={4} decay={2} />
+      {/* Precision multi-directional lighting creating rich depth & specular edges */}
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[6, 8, 5]} intensity={1.1} color="#ffffff" />
+      <directionalLight position={[-6, -4, -4]} intensity={0.65} color={palette.coolRim} />
+      <pointLight position={[0, 0, 0]} intensity={2.6} color={palette.acid} distance={6} decay={2} />
+      <pointLight position={[2.5, -2, 2.5]} intensity={0.9} color={palette.acidBright} distance={4} decay={2} />
 
       {/* OUTER GIMBAL RING (Technical Coordinate Ring) */}
-      <group ref={outerRingRef} rotation={[0.45, 0.2, 0]}>
+      <group ref={outerRingRef} rotation={[0.42, 0.18, 0]}>
         <mesh geometry={geometries.outerGimbal}>
           <meshStandardMaterial
             color={palette.ringLineMuted}
-            roughness={0.25}
-            metalness={0.85}
+            roughness={0.22}
+            metalness={0.9}
           />
         </mesh>
         {/* Fine coordinate notches at 90-degree marks */}
         {[0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2].map((angle, idx) => (
-          <mesh key={idx} position={[Math.cos(angle) * 2.45, Math.sin(angle) * 2.45, 0]}>
-            <boxGeometry args={[0.07, 0.035, 0.035]} />
+          <mesh key={idx} position={[Math.cos(angle) * 2.5, Math.sin(angle) * 2.5, 0]}>
+            <boxGeometry args={[0.08, 0.035, 0.035]} />
             <meshBasicMaterial color={palette.acid} />
           </mesh>
         ))}
       </group>
 
       {/* MIDDLE GIMBAL RING (Emissive Acid Line) */}
-      <group ref={midRingRef} rotation={[-0.55, 0.65, 0.35]}>
+      <group ref={midRingRef} rotation={[-0.52, 0.6, 0.32]}>
         <mesh geometry={geometries.midGimbal}>
           <meshStandardMaterial
             color={palette.acid}
             emissive={palette.acid}
-            emissiveIntensity={0.3}
-            roughness={0.15}
-            metalness={0.9}
+            emissiveIntensity={0.32}
+            roughness={0.16}
+            metalness={0.88}
           />
         </mesh>
       </group>
 
       {/* EQUATORIAL BELT RING */}
-      <group rotation={[1.1, -0.3, 0.8]}>
+      <group rotation={[1.15, -0.28, 0.75]}>
         <mesh geometry={geometries.equatorBelt}>
           <meshStandardMaterial
             color={palette.ringLineMuted}
             roughness={0.3}
-            metalness={0.8}
+            metalness={0.85}
             wireframe={true}
           />
         </mesh>
       </group>
 
       {/* INNER GIMBAL RING */}
-      <group ref={innerRingRef} rotation={[0.85, -0.45, 0.25]}>
+      <group ref={innerRingRef} rotation={[0.82, -0.42, 0.22]}>
         <mesh geometry={geometries.innerGimbal}>
           <meshStandardMaterial
             color={palette.darkMetallic}
             emissive={palette.acid}
-            emissiveIntensity={0.15}
-            roughness={0.3}
-            metalness={0.85}
+            emissiveIntensity={0.16}
+            roughness={0.28}
+            metalness={0.88}
           />
         </mesh>
       </group>
@@ -209,7 +209,7 @@ export function GyroscopeScene({ isMobile, reducedMotion, onNodeHover }: Gyrosco
           />
         </mesh>
         <mesh geometry={geometries.nodeHalo} rotation={[Math.PI / 2, 0, 0]}>
-          <meshBasicMaterial color={palette.acid} transparent opacity={0.4} side={THREE.DoubleSide} />
+          <meshBasicMaterial color={palette.acid} transparent opacity={0.45} side={THREE.DoubleSide} />
         </mesh>
       </group>
 
@@ -222,7 +222,7 @@ export function GyroscopeScene({ isMobile, reducedMotion, onNodeHover }: Gyrosco
           <meshStandardMaterial
             color="#f2f3eb"
             emissive="#f2f3eb"
-            emissiveIntensity={0.65}
+            emissiveIntensity={0.7}
             roughness={0.2}
           />
         </mesh>
@@ -249,19 +249,19 @@ export function GyroscopeScene({ isMobile, reducedMotion, onNodeHover }: Gyrosco
           <meshStandardMaterial
             color={palette.darkMetallic}
             emissive={palette.acid}
-            emissiveIntensity={0.25}
+            emissiveIntensity={0.28}
             wireframe={true}
             roughness={0.2}
-            metalness={0.9}
+            metalness={0.92}
           />
         </mesh>
 
         {/* Inner solid obsidian crystal */}
         <mesh geometry={geometries.coreInnerGem}>
           <meshStandardMaterial
-            color="#0e120c"
+            color="#0d110b"
             emissive={palette.acid}
-            emissiveIntensity={0.45}
+            emissiveIntensity={0.4}
             roughness={0.1}
             metalness={0.95}
           />
@@ -282,10 +282,10 @@ export function GyroscopeScene({ isMobile, reducedMotion, onNodeHover }: Gyrosco
           />
         </bufferGeometry>
         <pointsMaterial
-          size={isMobile ? 0.03 : 0.04}
+          size={isMobile ? 0.03 : 0.038}
           color={palette.stardust}
           transparent
-          opacity={0.6}
+          opacity={0.55}
           sizeAttenuation
         />
       </points>

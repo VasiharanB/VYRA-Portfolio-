@@ -1,106 +1,143 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { useReducedMotion } from '../../hooks/useReducedMotion'
 
 export type CursorMode = 'default' | 'hover' | 'inspect' | 'orbit' | 'hidden'
 
 export function CustomCursor() {
-  const [pos, setPos] = useState<{ x: number; y: number }>({ x: -100, y: -100 })
-  const [ringPos, setRingPos] = useState<{ x: number; y: number }>({ x: -100, y: -100 })
+  const prefersReducedMotion = useReducedMotion()
   const [mode, setMode] = useState<CursorMode>('default')
-  const [isTouch, setIsTouch] = useState(false)
-  const [visible, setVisible] = useState(false)
+  const [isEnabled, setIsEnabled] = useState(false)
 
-  const posRef = useRef(pos)
-  posRef.current = pos
+  const containerRef = useRef<HTMLDivElement>(null)
+  const dotRef = useRef<HTMLDivElement>(null)
+  const ringRef = useRef<HTMLDivElement>(null)
+
+  // Position tracking using refs to prevent React per-frame re-renders
+  const mousePos = useRef({ x: -100, y: -100 })
+  const ringPos = useRef({ x: -100, y: -100 })
+  const currentMode = useRef<CursorMode>('default')
+  const isVisible = useRef(false)
+  const rafId = useRef<number | null>(null)
 
   useEffect(() => {
-    // Detect touch-only device and permanently disable custom cursor
-    if (typeof window !== 'undefined') {
-      const touchMatch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window
-      if (touchMatch) {
-        setIsTouch(true)
-        return
-      }
+    // Only activate custom cursor on desktop devices with fine pointer and hover support
+    if (typeof window === 'undefined') return
+
+    const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    const isTouchOnly = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window
+
+    if (!hasFinePointer || isTouchOnly) {
+      setIsEnabled(false)
+      return
     }
 
-    const handleMouseMove = (e: MouseEvent) => {
-      setPos({ x: e.clientX, y: e.clientY })
-      if (!visible) setVisible(true)
+    setIsEnabled(true)
 
-      // Context-aware target inspection
+    const handleMouseMove = (e: MouseEvent) => {
+      mousePos.current.x = e.clientX
+      mousePos.current.y = e.clientY
+
+      if (!isVisible.current) {
+        isVisible.current = true
+        if (containerRef.current) {
+          containerRef.current.style.opacity = '1'
+        }
+      }
+
+      // Immediately translate the precision dot without triggering a React re-render
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`
+      }
+
+      // Context-aware target inspection for badge and ring sizing
       const target = e.target as HTMLElement | null
       if (!target) return
 
-      if (target.closest('.project-card')) {
-        setMode('inspect')
-      } else if (target.closest('.gyroscope-3d-container') || target.closest('.hero-art')) {
-        setMode('orbit')
+      let nextMode: CursorMode = 'default'
+
+      // Native text inputs must retain native cursor and hide custom reticle
+      if (target.closest('input, textarea, select, [contenteditable="true"]')) {
+        nextMode = 'hidden'
+      } else if (target.closest('.project-card')) {
+        nextMode = 'inspect'
+      } else if (target.closest('.gyroscope-3d-container') || target.closest('.hero-art') || target.closest('.orbital-stage')) {
+        nextMode = 'orbit'
       } else if (
-        target.closest('button') ||
-        target.closest('a') ||
-        target.closest('.nav-cta') ||
-        target.closest('.project-open') ||
-        target.closest('.social-link')
+        target.closest('button, a, .nav-cta, .project-open, .social-link, [role="button"]')
       ) {
-        setMode('hover')
-      } else {
-        setMode('default')
+        nextMode = 'hover'
+      }
+
+      // Only trigger a React state change when the cursor mode actually transitions
+      if (nextMode !== currentMode.current) {
+        currentMode.current = nextMode
+        setMode(nextMode)
       }
     }
 
     const handleMouseLeave = () => {
-      setVisible(false)
+      isVisible.current = false
+      if (containerRef.current) {
+        containerRef.current.style.opacity = '0'
+      }
     }
 
     const handleMouseEnter = () => {
-      setVisible(true)
+      isVisible.current = true
+      if (containerRef.current) {
+        containerRef.current.style.opacity = '1'
+      }
+    }
+
+    // High performance RAF loop directly manipulating DOM transform
+    const updateRing = () => {
+      if (prefersReducedMotion) {
+        ringPos.current.x = mousePos.current.x
+        ringPos.current.y = mousePos.current.y
+      } else {
+        const dx = mousePos.current.x - ringPos.current.x
+        const dy = mousePos.current.y - ringPos.current.y
+        ringPos.current.x += dx * 0.2
+        ringPos.current.y += dy * 0.2
+      }
+
+      if (ringRef.current) {
+        ringRef.current.style.transform = `translate3d(${ringPos.current.x}px, ${ringPos.current.y}px, 0)`
+      }
+
+      rafId.current = requestAnimationFrame(updateRing)
     }
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true })
     document.addEventListener('mouseleave', handleMouseLeave)
     document.addEventListener('mouseenter', handleMouseEnter)
 
-    // Smooth spring-lag loop for outer ring
-    let animationFrameId: number
-    const smoothFollow = () => {
-      setRingPos((prev) => {
-        const dx = posRef.current.x - prev.x
-        const dy = posRef.current.y - prev.y
-        return {
-          x: prev.x + dx * 0.18,
-          y: prev.y + dy * 0.18,
-        }
-      })
-      animationFrameId = requestAnimationFrame(smoothFollow)
-    }
-    animationFrameId = requestAnimationFrame(smoothFollow)
+    rafId.current = requestAnimationFrame(updateRing)
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseleave', handleMouseLeave)
       document.removeEventListener('mouseenter', handleMouseEnter)
-      cancelAnimationFrame(animationFrameId)
+      if (rafId.current !== null) {
+        cancelAnimationFrame(rafId.current)
+      }
     }
-  }, [visible])
+  }, [prefersReducedMotion])
 
-  if (isTouch || !visible) return null
+  if (!isEnabled) return null
 
   return (
-    <div className={`vyra-custom-cursor cursor-${mode}`} aria-hidden="true">
+    <div
+      ref={containerRef}
+      className={`vyra-custom-cursor cursor-${mode}`}
+      aria-hidden="true"
+      style={{ opacity: 0 }}
+    >
       {/* Precision center point */}
-      <div
-        className="cursor-dot"
-        style={{
-          transform: `translate3d(${pos.x}px, ${pos.y}px, 0)`,
-        }}
-      />
+      <div ref={dotRef} className="cursor-dot" />
 
-      {/* Lagged outer reticle / ring */}
-      <div
-        className="cursor-ring"
-        style={{
-          transform: `translate3d(${ringPos.x}px, ${ringPos.y}px, 0)`,
-        }}
-      >
+      {/* Outer reticle / ring */}
+      <div ref={ringRef} className="cursor-ring">
         {/* Reticle targeting crosshair ticks */}
         <span className="reticle-tick tick-top" />
         <span className="reticle-tick tick-bottom" />

@@ -38,7 +38,7 @@ function App() {
     <div className="site-shell">
       <CustomCursor />
       {showIntro && <LoadingIntro onComplete={() => setShowIntro(false)} />}
-      <a className="skip-link" href="#main">Skip to content</a><div className="ambient ambient-a" aria-hidden="true" /><div className="ambient ambient-b" aria-hidden="true" />
+      <a className="skip-link" href="#main">Skip to content</a><div className="ambient ambient-a" aria-hidden="true" /><div className="ambient ambient-b" aria-hidden="true" /><div className="ambient ambient-gyro" aria-hidden="true" />
       <header className="site-header"><div className="nav-wrap">
         <a className="brand" href="#home" aria-label="VYRA home" onClick={closeMenu}><span className="brand-mark"><span>V</span></span><span className="brand-type"><strong>VYRA<span>.</span></strong><small>BY VASIHARAN</small></span></a>
         <nav className="desktop-nav" aria-label="Main navigation"><a href="#work">Work <span>02</span></a><a href="#about">About <span>03</span></a><a href="#stack">Stack <span>04</span></a></nav>
@@ -60,7 +60,6 @@ function App() {
             <div className="art-topline"><span>FIG. 01 — BUILDING IN MOTION</span><span className="art-live"><i /> VYRA / 001</span></div>
             <HeroGyroscope />
             <div className="art-bottomline"><div><span className="mini-label">CURRENT MODE</span><strong>Learn / Build / Iterate</strong></div><div className="art-index">13° 00' N<br />80° 14' E</div></div>
-            <div className="float-chip chip-code"><Code2 size={14} /> Clean code, clear intent</div><div className="float-chip chip-ai"><Sparkles size={14} /> Applied AI</div>
           </div>
           <div className="hero-bottom"><span className="scroll-cue"><span /> SCROLL TO EXPLORE</span><span className="hero-bottom-note">A PORTFOLIO OF THINGS MADE TO BE USEFUL.</span><a href="#work" aria-label="Scroll to selected work"><ArrowDownRight size={18} /></a></div>
         </section>

@@ -13,6 +13,7 @@ export function GyroscopeCanvas({ reducedMotion, onContextLoss }: GyroscopeCanva
   const [isVisible, setIsVisible] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [hoveredNode, setHoveredNode] = useState<string | null>(null)
+  const [isReady, setIsReady] = useState(false)
 
   // Track responsive mobile breakpoint
   useEffect(() => {
@@ -48,6 +49,8 @@ export function GyroscopeCanvas({ reducedMotion, onContextLoss }: GyroscopeCanva
         onContextLoss('WebGL context lost by graphics driver')
       }
       canvas.addEventListener('webglcontextlost', handleContextLost, false)
+      // Signal ready state for smooth crossfade
+      requestAnimationFrame(() => setIsReady(true))
     },
     [onContextLoss]
   )
@@ -55,17 +58,19 @@ export function GyroscopeCanvas({ reducedMotion, onContextLoss }: GyroscopeCanva
   return (
     <div
       ref={containerRef}
-      className="gyroscope-3d-container"
+      className={`gyroscope-3d-container ${isReady ? 'scene-ready' : ''}`}
       style={{
         position: 'relative',
         width: '100%',
         height: '100%',
-        minHeight: isMobile ? '340px' : '460px',
+        minHeight: isMobile ? '340px' : '500px',
         overflow: 'hidden',
+        opacity: isReady ? 1 : 0.4,
+        transition: 'opacity 0.4s ease-out',
       }}
       aria-label="Interactive 3D Gyroscope Engine"
     >
-      {/* Subtle orbital grid background matching VYRA aesthetic */}
+      {/* Subtle orbital grid background matching VYRA aesthetic without card bounding */}
       <div className="orbital-grid" style={{ pointerEvents: 'none' }} />
 
       {/* Real-time Telemetry HUD overlay in 3D space */}
@@ -74,7 +79,7 @@ export function GyroscopeCanvas({ reducedMotion, onContextLoss }: GyroscopeCanva
         style={{
           position: 'absolute',
           top: '12px',
-          left: '14px',
+          left: '8px',
           zIndex: 4,
           pointerEvents: 'none',
           fontFamily: 'var(--mono)',
@@ -97,7 +102,7 @@ export function GyroscopeCanvas({ reducedMotion, onContextLoss }: GyroscopeCanva
               boxShadow: '0 0 6px var(--acid)',
             }}
           />
-          GYRO / REAL-TIME 3D
+          GYRO // 3D SPATIAL REACTOR
         </span>
         <span style={{ opacity: 0.75 }}>
           {hoveredNode ? hoveredNode : 'MODE: INTERACTIVE GIMBAL'}
@@ -105,7 +110,7 @@ export function GyroscopeCanvas({ reducedMotion, onContextLoss }: GyroscopeCanva
       </div>
 
       <Canvas
-        camera={{ position: [0, 0, 5.8], fov: 48, near: 0.1, far: 100 }}
+        camera={{ position: [0, 0, 5.3], fov: 46, near: 0.1, far: 100 }}
         dpr={isMobile ? [1, 1.5] : [1, 2]}
         frameloop={isVisible && !reducedMotion ? 'always' : 'demand'}
         gl={{
@@ -135,7 +140,7 @@ export function GyroscopeCanvas({ reducedMotion, onContextLoss }: GyroscopeCanva
         style={{
           position: 'absolute',
           bottom: '12px',
-          right: '14px',
+          right: '8px',
           zIndex: 4,
           pointerEvents: 'none',
           fontFamily: 'var(--mono)',

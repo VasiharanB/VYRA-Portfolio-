@@ -65,13 +65,13 @@ export function HeroGyroscope() {
 
   return (
     <div className="hero-gyroscope-wrapper" style={{ position: 'relative', width: '100%', height: '100%' }}>
-      {/* Engine Switcher / Mode indicator in top-right of art box */}
+      {/* Engine Switcher / Mode indicator integrated into top-right of the unboxed spatial area */}
       <div
         className="engine-toggle-hud"
         style={{
           position: 'absolute',
-          top: '-24px',
-          right: '0',
+          top: '10px',
+          right: '8px',
           zIndex: 6,
           display: 'flex',
           alignItems: 'center',
@@ -85,10 +85,11 @@ export function HeroGyroscope() {
           type="button"
           onClick={() => setManualMode((m) => (m === '2d' ? '3d' : '2d'))}
           style={{
-            background: 'rgba(17, 19, 17, 0.85)',
-            border: '1px solid rgba(240, 243, 231, 0.15)',
+            background: 'rgba(17, 19, 17, 0.75)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(240, 243, 231, 0.16)',
             color: shouldUseFallback ? '#a0a39a' : 'var(--acid)',
-            padding: '2px 8px',
+            padding: '3px 8px',
             borderRadius: '4px',
             cursor: 'pointer',
             fontSize: '8px',
