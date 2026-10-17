@@ -25,30 +25,32 @@ interface StauntonModelProps {
  */
 function usePieceMaterials(accentColor = '#b9f36a') {
   return useMemo(() => {
+    // High-visibility brushed titanium tone: catches highlights and retains clear surface volume
     const body = new THREE.MeshStandardMaterial({
-      color: new THREE.Color('#525c66'),
-      roughness: 0.28,
-      metalness: 0.78,
-      envMapIntensity: 1.3,
+      color: new THREE.Color('#788594'),
+      roughness: 0.32,
+      metalness: 0.70,
+      envMapIntensity: 1.4,
     })
 
     const bodyDark = new THREE.MeshStandardMaterial({
-      color: new THREE.Color('#22272e'),
-      roughness: 0.32,
-      metalness: 0.82,
+      color: new THREE.Color('#38414b'),
+      roughness: 0.35,
+      metalness: 0.75,
     })
 
+    // Restrained hairline circuit inlay at base bevel
     const acidEmissive = new THREE.MeshStandardMaterial({
       color: new THREE.Color(accentColor),
       emissive: new THREE.Color(accentColor),
-      emissiveIntensity: 1.4,
-      roughness: 0.2,
+      emissiveIntensity: 1.2,
+      roughness: 0.25,
     })
 
     const chromeBezel = new THREE.MeshStandardMaterial({
-      color: new THREE.Color('#384149'),
-      metalness: 0.92,
-      roughness: 0.18,
+      color: new THREE.Color('#48535f'),
+      metalness: 0.88,
+      roughness: 0.20,
     })
 
     return { body, bodyDark, acidEmissive, chromeBezel }
@@ -75,60 +77,39 @@ function StauntonGlbModel({ modelPath, accentColor = '#b9f36a', pieceType }: Sta
     return clone
   }, [gltf, materials])
 
-  // Height and scale adjustments so pieces match tournament Staunton proportions perfectly
-  const pieceConfig = useMemo(() => {
+  // Base collar radius for the subtle acid-lime ring inlay
+  const collarConfig = useMemo(() => {
     switch (pieceType) {
       case 'king':
-        return { scale: 1.0, posY: 0, collarY: 0.22, collarRadius: 0.78 }
+        return { collarY: 0.18, collarRadius: 0.78 }
       case 'queen':
-        return { scale: 1.0, posY: 0, collarY: 0.22, collarRadius: 0.76 }
+        return { collarY: 0.18, collarRadius: 0.76 }
       case 'bishop':
-        return { scale: 1.0, posY: 0, collarY: 0.20, collarRadius: 0.65 }
+        return { collarY: 0.16, collarRadius: 0.65 }
       case 'knight':
-        // Knight GLB is slightly larger, scale down to match proportions
-        return { scale: 0.88, posY: 0, collarY: 0.20, collarRadius: 0.64 }
+        return { collarY: 0.18, collarRadius: 0.68 }
       case 'rook':
-        return { scale: 1.0, posY: 0, collarY: 0.20, collarRadius: 0.68 }
+        return { collarY: 0.16, collarRadius: 0.68 }
       case 'pawn':
-        return { scale: 1.0, posY: 0, collarY: 0.18, collarRadius: 0.52 }
+        return { collarY: 0.14, collarRadius: 0.52 }
     }
   }, [pieceType])
 
   return (
-    <group scale={[pieceConfig.scale, pieceConfig.scale, pieceConfig.scale]}>
+    <group position={[0, 0, 0]}>
       {/* 1. Sculpted Staunton Mesh */}
       <primitive object={clonedScene} />
 
       {/* 2. Restrained VYRA Acid-Lime Telemetry Collar Inlay */}
       <mesh
-        position={[0, pieceConfig.collarY, 0]}
+        position={[0, collarConfig.collarY, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
       >
         <ringGeometry
-          args={[pieceConfig.collarRadius - 0.015, pieceConfig.collarRadius, 48]}
+          args={[collarConfig.collarRadius - 0.016, collarConfig.collarRadius, 64]}
         />
         <primitive object={materials.acidEmissive} attach="material" />
       </mesh>
-
-      {/* Extra subtle crown beacon on King / Queen / Bishop */}
-      {pieceType === 'king' && (
-        <mesh position={[0, 3.42, 0]}>
-          <sphereGeometry args={[0.038, 16, 16]} />
-          <primitive object={materials.acidEmissive} attach="material" />
-        </mesh>
-      )}
-      {pieceType === 'queen' && (
-        <mesh position={[0, 3.02, 0]}>
-          <sphereGeometry args={[0.032, 16, 16]} />
-          <primitive object={materials.acidEmissive} attach="material" />
-        </mesh>
-      )}
-      {pieceType === 'bishop' && (
-        <mesh position={[0, 2.62, 0]}>
-          <sphereGeometry args={[0.028, 16, 16]} />
-          <primitive object={materials.acidEmissive} attach="material" />
-        </mesh>
-      )}
     </group>
   )
 }

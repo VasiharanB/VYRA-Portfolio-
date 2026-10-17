@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useMemo, Suspense } from 'react'
+import React, { useRef, useEffect, useState, useMemo, Suspense, useCallback } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { StauntonPiece, type ChessPieceType } from './StauntonPieceModels'
@@ -7,60 +7,65 @@ interface ChessShowcaseCanvasProps {
   activePieceId: ChessPieceType
   accentColor: string
   reducedMotion: boolean
+  isRotating?: boolean
+  selectedAngle?: number // 0, 90, 180, 270 degrees in radians
 }
 
 /**
- * Tournament-grade 6x6 Chessboard with high-contrast titanium/obsidian squares,
- * beveled perimeter rim, and active square highlight.
+ * Tournament-grade 6x6 Chessboard as a spatial foundation
+ * Tiles softly fade at the perimeter into graphite background so the board
+ * grounds the piece without dominating the foreground.
  */
-function RealisticChessboard({ accentColor }: { accentColor: string }) {
-  const tileSize = 1.15
+function GroundedChessboard({ accentColor }: { accentColor: string }) {
+  const tileSize = 0.88
   const gridSize = 6
   const boardOffset = ((gridSize - 1) * tileSize) / 2
 
   const palette = useMemo(() => ({
-    lightTile: new THREE.Color('#4c5864'), // brushed titanium slate
-    lightPlate: new THREE.Color('#5f6d7a'), // top face highlight
-    darkTile: new THREE.Color('#1a1f24'),  // deep obsidian charcoal
-    darkBevel: new THREE.Color('#22282f'),
-    frame: new THREE.Color('#101316'),     // perimeter beveled rim
-    seam: new THREE.Color('#0c0e10'),      // recessed channels
+    lightTile: new THREE.Color('#4a5664'), // refined brushed slate titanium
+    darkTile: new THREE.Color('#161a1e'),  // deep graphite obsidian
+    frame: new THREE.Color('#0f1215'),
   }), [])
 
   return (
-    <group position={[0, -0.04, 0]}>
-      {/* 1. Substrate Border Frame */}
-      <mesh position={[0, -0.10, 0]} receiveShadow>
-        <boxGeometry args={[gridSize * tileSize + 0.5, 0.16, gridSize * tileSize + 0.5]} />
-        <meshStandardMaterial color={palette.frame} roughness={0.4} metalness={0.7} />
+    <group position={[0, -0.02, 0]}>
+      {/* 1. Recessed substrate plinth */}
+      <mesh position={[0, -0.07, 0]} receiveShadow>
+        <boxGeometry args={[gridSize * tileSize + 0.35, 0.10, gridSize * tileSize + 0.35]} />
+        <meshStandardMaterial color={palette.frame} roughness={0.5} metalness={0.6} />
       </mesh>
 
-      {/* 2. Grid of Alternating Tiles */}
+      {/* 2. 6x6 alternating squares with radial distance falloff */}
       {Array.from({ length: gridSize }).map((_, r) =>
         Array.from({ length: gridSize }).map((_, c) => {
           const posX = c * tileSize - boardOffset
           const posZ = r * tileSize - boardOffset
           const isLight = (r + c) % 2 === 0
-          // The center square where the piece sits
-          const isTargetSquare = r === 2 && c === 2
+          const isTargetSquare = (r === 2 || r === 3) && (c === 2 || c === 3)
+
+          // Distance from board center to fade edge tiles
+          const dist = Math.hypot(posX, posZ)
+          const maxDist = boardOffset * 1.35
+          const opacity = Math.max(0.35, Math.min(1.0, 1.15 - (dist / maxDist) * 0.75))
 
           return (
             <group key={`tile-${r}-${c}`} position={[posX, 0, posZ]}>
-              {/* Tile Body */}
               <mesh receiveShadow>
-                <boxGeometry args={[tileSize * 0.94, 0.08, tileSize * 0.94]} />
+                <boxGeometry args={[tileSize * 0.95, 0.04, tileSize * 0.95]} />
                 <meshStandardMaterial
                   color={isLight ? palette.lightTile : palette.darkTile}
-                  roughness={isLight ? 0.28 : 0.36}
-                  metalness={0.75}
+                  roughness={isLight ? 0.32 : 0.40}
+                  metalness={0.70}
+                  transparent
+                  opacity={opacity}
                 />
               </mesh>
 
-              {/* Active Square Highlight Ring */}
+              {/* Active Central Square Accent Ring */}
               {isTargetSquare && (
-                <mesh position={[0, 0.042, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-                  <ringGeometry args={[tileSize * 0.38, tileSize * 0.44, 32]} />
-                  <meshBasicMaterial color={accentColor} transparent opacity={0.65} />
+                <mesh position={[0, 0.021, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                  <ringGeometry args={[tileSize * 0.36, tileSize * 0.42, 32]} />
+                  <meshBasicMaterial color={accentColor} transparent opacity={0.55} />
                 </mesh>
               )}
             </group>
@@ -68,120 +73,90 @@ function RealisticChessboard({ accentColor }: { accentColor: string }) {
         })
       )}
 
-      {/* 3. Soft Contact Shadow Disc under active piece */}
-      <mesh position={[0, 0.043, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.78, 32]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.65} />
+      {/* 3. Deep contact shadow disc under piece pedestal */}
+      <mesh position={[0, 0.022, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.72, 48]} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.72} />
       </mesh>
     </group>
   )
 }
 
 /**
- * Animated Chess Piece Actor
- * Performs piece-specific physical entrance, settling, and pointer-parallax
+ * 360° Turntable Piece Actor
+ * - Short, elegant settling entrance (~0.5s)
+ * - Continuous, smooth 360° rotation (constant angular velocity, ~22s per full turn)
+ * - Board stays completely stable
  */
-function AnimatedPieceActor({
+function TurntablePieceActor({
   pieceType,
   accentColor,
   reducedMotion,
+  isRotating,
+  selectedAngle,
 }: {
   pieceType: ChessPieceType
   accentColor: string
   reducedMotion: boolean
+  isRotating: boolean
+  selectedAngle?: number
 }) {
   const groupRef = useRef<THREE.Group>(null!)
-  const animTimeRef = useRef<number>(0)
   const prevPieceRef = useRef<ChessPieceType>(pieceType)
-  const { pointer } = useThree()
+  const animTimeRef = useRef<number>(0)
+  const angleRef = useRef<number>(0.35) // base 3/4 presentation angle
 
-  // Track piece changes to trigger physical entrance
+  // Angular velocity: 360° (2*PI) in 22 seconds
+  const TURNTABLE_SPEED = (Math.PI * 2) / 22
+
+  // Reset entrance sequence when piece changes
   useEffect(() => {
     if (prevPieceRef.current !== pieceType) {
       prevPieceRef.current = pieceType
       animTimeRef.current = 0
+      angleRef.current = 0.35 // restart at clean 3/4 front view
     }
   }, [pieceType])
+
+  // If user picks a specific angle manually
+  useEffect(() => {
+    if (selectedAngle !== undefined && !isRotating) {
+      angleRef.current = selectedAngle
+    }
+  }, [selectedAngle, isRotating])
 
   useFrame((_, delta) => {
     if (!groupRef.current) return
 
     if (reducedMotion) {
       groupRef.current.position.set(0, 0, 0)
-      groupRef.current.rotation.set(0, 0.35, 0)
+      groupRef.current.rotation.set(0, selectedAngle ?? 0.35, 0)
       return
     }
 
     animTimeRef.current += delta
-    const t = Math.min(animTimeRef.current, 1.2) // clamp entrance to 1.2s
+    const t = animTimeRef.current
 
-    // Calculate normalized easing (cubic ease out)
-    const progress = Math.min(1, t / 0.85)
-    const easeOut = 1 - Math.pow(1 - progress, 3)
-
-    // Base target position on board: central square [0, 0, 0]
-    let posX = 0
+    // 1. Short, graceful settling drop on entrance (0.5s)
     let posY = 0
-    let posZ = 0
-    let rotY = 0.35 // base 3/4 presentation angle
-
-    // Piece-specific physical movement trajectories
-    switch (pieceType) {
-      case 'king':
-        // Imperial descent from above with grounded micro-compression
-        posY = THREE.MathUtils.lerp(1.5, 0, easeOut)
-        // Subtle bounce/settle on landing
-        if (progress > 0.8 && progress < 1.0) {
-          const bounceT = (progress - 0.8) / 0.2
-          posY += Math.sin(bounceT * Math.PI) * 0.04
-        }
-        break
-
-      case 'queen':
-        // Sweeping diagonal arrival with graceful curve
-        posX = THREE.MathUtils.lerp(-1.4, 0, easeOut)
-        posZ = THREE.MathUtils.lerp(-1.4, 0, easeOut)
-        posY = Math.sin(easeOut * Math.PI) * 0.35
-        rotY = THREE.MathUtils.lerp(0.8, 0.35, easeOut)
-        break
-
-      case 'rook':
-        // Direct, orthogonal slide along straight file
-        posZ = THREE.MathUtils.lerp(-2.0, 0, easeOut)
-        posY = Math.sin(easeOut * Math.PI) * 0.12
-        rotY = 0.35
-        break
-
-      case 'bishop':
-        // Crisp diagonal translation slicing across squares
-        posX = THREE.MathUtils.lerp(-1.6, 0, easeOut)
-        posZ = THREE.MathUtils.lerp(1.2, 0, easeOut)
-        posY = Math.sin(easeOut * Math.PI) * 0.22
-        break
-
-      case 'knight':
-        // Authentic parabolic L-hop arc
-        posX = THREE.MathUtils.lerp(1.3, 0, easeOut)
-        posZ = THREE.MathUtils.lerp(1.8, 0, easeOut)
-        // High parabolic leap
-        posY = Math.sin(easeOut * Math.PI) * 0.85
-        rotY = THREE.MathUtils.lerp(0.9, 0.35, easeOut)
-        break
-
-      case 'pawn':
-        // Steady, disciplined single-square step forward
-        posZ = THREE.MathUtils.lerp(1.2, 0, easeOut)
-        posY = Math.sin(easeOut * Math.PI) * 0.18
-        break
+    if (t < 0.5) {
+      const progress = t / 0.5
+      // Cubic ease out
+      const ease = 1 - Math.pow(1 - progress, 3)
+      posY = (1 - ease) * 0.28
     }
 
-    // Pointer-parallax response when cursor moves over the stage
-    const parallaxYaw = pointer.x * 0.12
-    const parallaxPitch = -pointer.y * 0.06
+    // 2. Continuous 360° Turntable rotation
+    if (isRotating && t >= 0.3) {
+      angleRef.current += delta * TURNTABLE_SPEED
+      // Keep within [0, 2*PI] without discontinuous jumps
+      if (angleRef.current > Math.PI * 200) {
+        angleRef.current %= Math.PI * 2
+      }
+    }
 
-    // Smoothly apply position and rotation
-    groupRef.current.position.set(posX, posY, posZ)
-    groupRef.current.rotation.set(parallaxPitch, rotY + parallaxYaw, 0)
+    groupRef.current.position.set(0, posY, 0)
+    groupRef.current.rotation.set(0, angleRef.current, 0)
   })
 
   return (
@@ -192,70 +167,76 @@ function AnimatedPieceActor({
 }
 
 /**
- * Camera Dolly and Studio Scene
+ * Camera & Studio Lighting Rig
+ * - Camera pulled back and targeted at piece mid-height ([0, 1.45, 0])
+ * - Piece occupies 50-60% of canvas height with generous breathing room
+ * - Soft key light + fill light + rim backlight guarantees visibility from all 360° angles
  */
 function StudioScene({
   activePieceId,
   accentColor,
   reducedMotion,
+  isRotating,
+  selectedAngle,
 }: {
   activePieceId: ChessPieceType
   accentColor: string
   reducedMotion: boolean
+  isRotating: boolean
+  selectedAngle?: number
 }) {
   const { camera } = useThree()
 
-  // Target camera position based on piece height
+  // Setup comfortable framing: complete piece at 50-60% usable stage height
   useEffect(() => {
-    if (reducedMotion) {
-      camera.position.set(2.8, 3.2, 4.4)
-      camera.lookAt(0, 1.1, 0)
-      return
-    }
-
-    // Adjust camera slightly for King/Queen vs Rook/Pawn
-    const targetCamY = activePieceId === 'king' || activePieceId === 'queen' ? 3.4 : 3.0
-    camera.position.set(2.7, targetCamY, 4.2)
-    camera.lookAt(0, 1.1, 0)
-  }, [activePieceId, camera, reducedMotion])
+    // Camera positioned back with deliberate three-quarter inclination
+    // Target is midpoint of Staunton piece (y ≈ 1.45)
+    camera.position.set(3.4, 4.4, 6.2)
+    camera.lookAt(0, 1.40, 0)
+  }, [camera])
 
   return (
     <>
-      {/* 1. Studio Lighting Rig */}
-      <ambientLight intensity={0.6} color="#303842" />
+      {/* 1. Ambient Lighting: ensures recesses retain clear slate tones instead of black */}
+      <ambientLight intensity={0.58} color="#384350" />
 
-      {/* Key Directional Light with Soft Shadows */}
+      {/* 2. Main Key Directional Light: casts soft, realistic shadows */}
       <directionalLight
-        position={[4, 7, 5]}
-        intensity={1.8}
+        position={[4.5, 7.0, 5.0]}
+        intensity={1.7}
         castShadow
         shadow-mapSize={[1024, 1024]}
         shadow-camera-near={0.5}
-        shadow-camera-far={20}
+        shadow-camera-far={22}
         shadow-camera-left={-4}
         shadow-camera-right={4}
-        shadow-camera-top={4}
-        shadow-camera-bottom={-4}
-        shadow-bias={-0.0005}
+        shadow-camera-top={5}
+        shadow-camera-bottom={-3}
+        shadow-bias={-0.0004}
       />
 
-      {/* Soft Fill Light */}
-      <directionalLight position={[-4, 3, -3]} intensity={0.7} color="#788a9c" />
+      {/* 3. Soft Front-Left Fill Light: prevents unlit side from disappearing into dark */}
+      <directionalLight position={[-4.0, 3.5, 4.0]} intensity={0.9} color="#92a4b8" />
 
-      {/* Rim Backlight to catch silhouette crowns and crenellations */}
-      <directionalLight position={[0, 4, -5]} intensity={1.2} color="#ffffff" />
+      {/* 4. Strong Rim Backlight: carves silhouette of crowns, cross, mitre, and knight mane */}
+      <directionalLight position={[-2.5, 5.0, -5.5]} intensity={1.5} color="#dbe7f5" />
 
-      {/* Substrate Accent Light from Active Tile */}
-      <pointLight position={[0, 0.4, 0]} intensity={1.5} color={accentColor} distance={4} />
+      {/* 5. Secondary Side Kicker Light: specular highlights on opposite flanks during 360° rotation */}
+      <directionalLight position={[4.0, 3.0, -4.0]} intensity={0.75} color="#8595a8" />
 
-      {/* 2. Realistic Chessboard */}
-      <RealisticChessboard accentColor={accentColor} />
+      {/* 6. Substrate Accent Glow from active square */}
+      <pointLight position={[0, 0.3, 0]} intensity={1.2} color={accentColor} distance={3.8} />
 
-      {/* 3. Physical Piece Actor */}
-      <AnimatedPieceActor
+      {/* 7. Stationary Grounded Chessboard */}
+      <GroundedChessboard accentColor={accentColor} />
+
+      {/* 8. 360° Turntable Piece Actor */}
+      <TurntablePieceActor
         pieceType={activePieceId}
         accentColor={accentColor}
         reducedMotion={reducedMotion}
+        isRotating={isRotating}
+        selectedAngle={selectedAngle}
       />
     </>
   )
@@ -268,6 +249,8 @@ export function ChessShowcaseCanvas({
   activePieceId,
   accentColor,
   reducedMotion,
+  isRotating = true,
+  selectedAngle,
 }: ChessShowcaseCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [inView, setInView] = useState(true)
@@ -292,7 +275,7 @@ export function ChessShowcaseCanvas({
       {inView && (
         <Canvas
           shadows
-          camera={{ position: [2.7, 3.2, 4.3], fov: 40 }}
+          camera={{ position: [3.4, 4.4, 6.2], fov: 36 }}
           gl={{
             antialias: true,
             alpha: true,
@@ -304,6 +287,8 @@ export function ChessShowcaseCanvas({
             activePieceId={activePieceId}
             accentColor={accentColor}
             reducedMotion={reducedMotion}
+            isRotating={isRotating && !reducedMotion}
+            selectedAngle={selectedAngle}
           />
         </Canvas>
       )}

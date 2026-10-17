@@ -1,7 +1,7 @@
 import React, { useState, useCallback, Suspense, lazy } from 'react'
 import {
   ArrowUpRight, ChevronRight, ExternalLink,
-  Shield, Layers, Wrench, Compass, Zap, Target
+  RotateCw, Play, Pause, Eye
 } from 'lucide-react'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
 import type { ChessPieceType } from './StauntonPieceModels'
@@ -215,6 +215,14 @@ export const CHESS_DISCIPLINES: ChessDiscipline[] = [
   },
 ]
 
+// Preset angles for static viewpoint inspection
+const ANGLE_PRESETS = [
+  { label: 'Front', rad: 0.35 },
+  { label: 'Flank', rad: Math.PI / 2 + 0.35 },
+  { label: 'Rear', rad: Math.PI + 0.35 },
+  { label: 'Profile', rad: (Math.PI * 3) / 2 + 0.35 },
+]
+
 interface InteractiveChessQualitiesProps {
   onInspectCaseStudy: (projectId: string) => void
 }
@@ -222,11 +230,26 @@ interface InteractiveChessQualitiesProps {
 export function InteractiveChessQualities({ onInspectCaseStudy }: InteractiveChessQualitiesProps) {
   const [selectedPieceId, setSelectedPieceId] = useState<ChessPieceType>('king')
   const prefersReducedMotion = useReducedMotion()
+  const [isRotating, setIsRotating] = useState(!prefersReducedMotion)
+  const [selectedAngle, setSelectedAngle] = useState<number | undefined>(undefined)
 
   const currentDiscipline = CHESS_DISCIPLINES.find((d) => d.id === selectedPieceId) || CHESS_DISCIPLINES[0]
 
   const handleSelectPiece = useCallback((id: ChessPieceType) => {
     setSelectedPieceId(id)
+    setSelectedAngle(undefined)
+    if (!prefersReducedMotion) {
+      setIsRotating(true)
+    }
+  }, [prefersReducedMotion])
+
+  const handleToggleRotation = useCallback(() => {
+    setIsRotating((prev) => !prev)
+  }, [])
+
+  const handleSelectAnglePreset = useCallback((rad: number) => {
+    setSelectedAngle(rad)
+    setIsRotating(false)
   }, [])
 
   return (
@@ -243,7 +266,7 @@ export function InteractiveChessQualities({ onInspectCaseStudy }: InteractiveChe
           </div>
         </div>
         <p className="section-note">
-          Six Staunton pieces anchor the core engineering disciplines I bring to production systems and client builds. Select any piece below to inspect its verified technical skills and project case studies.
+          Six Staunton pieces anchor the core engineering disciplines I bring to production systems and client builds. Select any piece below to inspect its 3D form, verified technical skills, and project case studies.
         </p>
       </div>
 
@@ -286,7 +309,18 @@ export function InteractiveChessQualities({ onInspectCaseStudy }: InteractiveChe
                 <span className="stage-fig-label">FIG. 04 — STAUNTON {currentDiscipline.name.toUpperCase()}</span>
                 <span className="stage-square-badge">SQUARE: {currentDiscipline.squareCoordinate}</span>
               </div>
-              <span className="stage-live-badge">REALISTIC 3D STAGE</span>
+
+              {/* Turntable Control Button */}
+              <button
+                type="button"
+                className={`stage-turntable-toggle ${isRotating ? 'turntable-active' : ''}`}
+                onClick={handleToggleRotation}
+                title={isRotating ? 'Pause 360° turntable' : 'Resume 360° turntable'}
+                aria-label={isRotating ? 'Pause 360° turntable rotation' : 'Resume 360° turntable rotation'}
+              >
+                {isRotating ? <Pause size={10} /> : <Play size={10} />}
+                <span>{isRotating ? 'TURNTABLE ON' : 'PAUSED'}</span>
+              </button>
             </div>
 
             {/* 3D Canvas Viewport */}
@@ -303,18 +337,37 @@ export function InteractiveChessQualities({ onInspectCaseStudy }: InteractiveChe
                   activePieceId={selectedPieceId}
                   accentColor={currentDiscipline.accentTone}
                   reducedMotion={prefersReducedMotion}
+                  isRotating={isRotating}
+                  selectedAngle={selectedAngle}
                 />
               </Suspense>
             </div>
 
-            {/* Bottom Telemetry Footer */}
+            {/* Bottom Telemetry Footer & Viewpoint Angle Controls */}
             <div className="stage-telemetry-footer">
               <div className="stage-footer-piece">
                 <span className="footer-glyph">{currentDiscipline.symbol}</span>
                 <strong>{currentDiscipline.name}</strong>
-                <span className="footer-quality-label">— {currentDiscipline.tag}</span>
               </div>
-              <span className="stage-interaction-hint">Hover / move cursor to inspect depth</span>
+
+              {/* Viewpoint Angle Selector for Static Inspection */}
+              <div className="stage-angle-presets" role="group" aria-label="Inspect piece angle">
+                <span className="angle-label"><Eye size={10} /> VIEW:</span>
+                {ANGLE_PRESETS.map((preset) => {
+                  const isCurrent = selectedAngle === preset.rad && !isRotating
+                  return (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      className={`angle-preset-btn ${isCurrent ? 'angle-btn-active' : ''}`}
+                      onClick={() => handleSelectAnglePreset(preset.rad)}
+                      title={`Inspect ${preset.label} view of ${currentDiscipline.name}`}
+                    >
+                      {preset.label}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
         </div>
