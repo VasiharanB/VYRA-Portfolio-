@@ -56,7 +56,7 @@ export function StrategicChessCanvas({ reducedMotion, onContextLoss }: Strategic
     return () => observer.disconnect()
   }, [])
 
-  // Handle WebGL context loss
+  // Handle WebGL context loss and restore
   const handleCreated = useCallback(
     ({ gl }: { gl: THREE.WebGLRenderer }) => {
       const canvas = gl.domElement
@@ -64,7 +64,11 @@ export function StrategicChessCanvas({ reducedMotion, onContextLoss }: Strategic
         event.preventDefault()
         onContextLoss('WebGL context lost by graphics driver')
       }
+      const handleContextRestored = () => {
+        setIsReady(true)
+      }
       canvas.addEventListener('webglcontextlost', handleContextLost, false)
+      canvas.addEventListener('webglcontextrestored', handleContextRestored, false)
       requestAnimationFrame(() => setIsReady(true))
     },
     [onContextLoss]

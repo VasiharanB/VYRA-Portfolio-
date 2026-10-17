@@ -60,17 +60,17 @@ export function StrategicFallback({ reason }: StrategicFallbackProps) {
           {/* Base Pedestal */}
           <path
             d="M-45 120 L45 120 L38 108 L-38 108 Z"
-            fill="#181c16"
-            stroke="var(--acid)"
-            strokeWidth="1.2"
+            fill="#16181b"
+            stroke="rgba(240, 243, 231, 0.25)"
+            strokeWidth="1"
           />
           <path
             d="M-34 108 L34 108 L28 92 L-28 92 Z"
-            fill="#121511"
-            stroke="rgba(240, 243, 231, 0.2)"
+            fill="#101214"
+            stroke="rgba(240, 243, 231, 0.18)"
             strokeWidth="1"
           />
-          <line x1="-30" y1="92" x2="30" y2="92" stroke="var(--acid)" strokeWidth="2" />
+          <line x1="-30" y1="92" x2="30" y2="92" stroke="var(--acid)" strokeWidth="1.5" strokeOpacity="0.7" />
 
           {/* Horse Head & Neck Contour */}
           <path
@@ -84,13 +84,13 @@ export function StrategicFallback({ reason }: StrategicFallbackProps) {
                C26 24, 16 38, 14 55
                C12 70, 18 82, 22 92 Z"
             fill="url(#knightGradient)"
-            stroke="var(--acid)"
-            strokeWidth="1.6"
+            stroke="rgba(240, 243, 231, 0.4)"
+            strokeWidth="1.2"
           />
 
-          {/* Circuit Seams on Knight */}
-          <path d="M-30 5 L-10 18 L-15 45 L15 55" stroke="var(--acid)" strokeWidth="1" strokeDasharray="3 3" opacity="0.75" />
-          <circle cx="18" cy="-12" r="3" fill="var(--acid)" />
+          {/* Restrained Cybernetic Eye & Seam */}
+          <circle cx="18" cy="-12" r="4" fill="#16181b" stroke="rgba(240, 243, 231, 0.3)" strokeWidth="1" />
+          <circle cx="18" cy="-12" r="2.2" fill="var(--acid)" />
         </g>
       </svg>
 

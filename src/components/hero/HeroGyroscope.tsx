@@ -48,8 +48,8 @@ export function HeroGyroscope() {
   // Determine whether to show 3D or 2D fallback
   const shouldUseFallback =
     manualMode === '2d' ||
-    Boolean(contextError) ||
-    !webglSupported ||
+    (Boolean(contextError) && manualMode !== '3d') ||
+    (!webglSupported && manualMode !== '3d') ||
     (prefersReducedMotion && manualMode !== '3d')
 
   const fallbackReason = manualMode === '2d'
@@ -82,7 +82,10 @@ export function HeroGyroscope() {
       >
         <button
           type="button"
-          onClick={() => setManualMode((m) => (m === '2d' ? '3d' : '2d'))}
+          onClick={() => {
+            setContextError(null)
+            setManualMode((m) => (m === '2d' ? '3d' : '2d'))
+          }}
           style={{
             background: 'rgba(17, 19, 17, 0.75)',
             backdropFilter: 'blur(8px)',
