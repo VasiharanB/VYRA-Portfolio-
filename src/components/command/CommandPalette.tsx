@@ -126,10 +126,12 @@ export function CommandPalette({
     // 3. Navigation Sections
     const sections = [
       { id: 'home', title: 'Home', subtitle: 'FIG. 01 — Strategic systems 3D chess hero', badge: '01' },
-      { id: 'work', title: 'Selected Work', subtitle: 'Interactive engineering case studies & architecture diagrams', badge: '02' },
-      { id: 'about', title: 'About & Principles', subtitle: 'Hardware-to-software perspective & 3 core principles', badge: '03' },
-      { id: 'stack', title: 'Tech Stack & Toolbelt', subtitle: 'Interactive technology filters & operational tooling', badge: '04' },
-      { id: 'contact', title: 'Contact & Opportunities', subtitle: 'Communication channels & professional links', badge: '05' },
+      { id: 'services', title: 'What I Can Build', subtitle: 'Freelance web apps, custom ERPs, real-time tools & AI retrieval', badge: '02' },
+      { id: 'work', title: 'Selected Work', subtitle: 'Interactive engineering case studies & architecture diagrams', badge: '03' },
+      { id: 'pieces', title: 'Chess Qualities', subtitle: 'The pieces behind my game — 6 engineering disciplines', badge: '04' },
+      { id: 'stack', title: 'Tech Stack & Toolbelt', subtitle: 'Interactive technology filters & operational tooling', badge: '05' },
+      { id: 'about', title: 'About & Principles', subtitle: 'Hardware-to-software perspective & 3 core principles', badge: '06' },
+      { id: 'contact', title: 'Contact & Opportunities', subtitle: 'Communication channels & freelance project discussion', badge: '07' },
     ]
 
     sections.forEach((sec) => {

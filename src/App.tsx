@@ -10,6 +10,8 @@ import CustomCursor from './components/cursor/CustomCursor'
 import InteractiveProjectCard from './components/work/InteractiveProjectCard'
 import InteractivePrinciples from './components/about/InteractivePrinciples'
 import InteractiveTechToolbelt from './components/stack/InteractiveTechToolbelt'
+import FreelanceServices from './components/services/FreelanceServices'
+import InteractiveChessQualities from './components/chess/InteractiveChessQualities'
 import { TECH_TO_PROJECTS } from './data/skillsData'
 import { PROJECTS } from './data/projectsData'
 
@@ -165,9 +167,11 @@ function App() {
             </span>
           </a>
           <nav className="desktop-nav" aria-label="Main navigation">
-            <a href="#work">Work <span>02</span></a>
-            <a href="#about">About <span>03</span></a>
-            <a href="#stack">Stack <span>04</span></a>
+            <a href="#services">Services <span>02</span></a>
+            <a href="#work">Work <span>03</span></a>
+            <a href="#pieces">Qualities <span>04</span></a>
+            <a href="#stack">Stack <span>05</span></a>
+            <a href="#about">About <span>06</span></a>
           </nav>
           <button
             type="button"
@@ -210,9 +214,11 @@ function App() {
               </span>
               <kbd>{shortcutBadge}</kbd>
             </button>
+            <a href="#services" onClick={closeMenu}>Services <ArrowUpRight size={16} /></a>
             <a href="#work" onClick={closeMenu}>Selected work <ArrowUpRight size={16} /></a>
-            <a href="#about" onClick={closeMenu}>About me <ArrowUpRight size={16} /></a>
+            <a href="#pieces" onClick={closeMenu}>Chess qualities <ArrowUpRight size={16} /></a>
             <a href="#stack" onClick={closeMenu}>Tech stack <ArrowUpRight size={16} /></a>
+            <a href="#about" onClick={closeMenu}>About me <ArrowUpRight size={16} /></a>
             <a href="#contact" onClick={closeMenu}>Contact <ArrowUpRight size={16} /></a>
           </nav>
         ) : null}
@@ -224,9 +230,9 @@ function App() {
           <div className="hero-copy">
             <div className="hero-kicker">
               <span className="status-dot" />
-              <span>FULL-STACK DEVELOPER</span>
+              <span>FULL-STACK DEVELOPER & FREELANCE BUILDER</span>
               <span className="kicker-divider">/</span>
-              <span className="kicker-muted">PRODUCT THINKER</span>
+              <span className="kicker-muted">WEB APPS · BUSINESS TOOLS · APPLIED AI</span>
             </div>
             <h1>
               Practical<br />
@@ -235,20 +241,32 @@ function App() {
               systems<span className="headline-period">.</span>
             </h1>
             <p className="hero-description">
-              I’m <strong>Vasiharan B</strong> — an ECE student and developer from Chennai. I build useful web applications, real-time systems, and applied AI tools where architectural clarity and execution matter.
+              I’m <strong>Vasiharan B</strong> — a full-stack engineer and freelance builder from Chennai. I design and engineer fast, reliable web applications, bespoke business tools, and real-time systems for founders and modern teams.
             </p>
+
+            {/* Concise capabilities preview strip */}
+            <div className="hero-services-preview" aria-label="Core freelance services preview">
+              <span className="services-preview-label">WHAT I CAN BUILD FOR YOU:</span>
+              <div className="services-preview-tags">
+                <a href="#services" className="preview-tag">Web Applications & Dashboards</a>
+                <a href="#services" className="preview-tag">Custom ERPs & Portals</a>
+                <a href="#services" className="preview-tag">Real-Time Event Systems</a>
+                <a href="#services" className="preview-tag">AI Vector Search & Retrieval</a>
+              </div>
+            </div>
+
             <div className="hero-actions">
               <a className="button button-primary" href="#work">
-                Explore selected work <ArrowDownRight size={17} />
+                View selected work <ArrowDownRight size={17} />
               </a>
-              <a className="button button-quiet" href="mailto:vasiharan030@gmail.com?subject=Let%27s%20connect">
-                Get in touch <ArrowUpRight size={16} />
+              <a className="button button-quiet" href="#contact">
+                Discuss a project <ArrowUpRight size={16} />
               </a>
             </div>
             <div className="hero-meta">
               <span><MapPin size={14} /> Chennai, India</span>
               <span className="meta-separator" />
-              <span>Curious by default. Systems-minded by design.</span>
+              <span>Available for freelance projects & custom software contracts.</span>
             </div>
           </div>
 
@@ -259,8 +277,8 @@ function App() {
             <HeroGyroscope />
             <div className="art-bottomline">
               <div>
-                <span className="mini-label">ENGINEERING DOMAINS</span>
-                <strong>Applied AI · Real-time systems · Business software</strong>
+                <span className="mini-label">ENGINEERING DISCIPLINES</span>
+                <strong>Web Apps · Business Software · Real-Time · Applied AI</strong>
               </div>
             </div>
           </div>
@@ -268,7 +286,7 @@ function App() {
           <div className="hero-bottom">
             <span className="scroll-cue"><span /> SCROLL TO EXPLORE</span>
             <span className="hero-bottom-note">A PORTFOLIO OF THINGS MADE TO BE USEFUL.</span>
-            <a href="#work" aria-label="Scroll to selected work"><ArrowDownRight size={18} /></a>
+            <a href="#services" aria-label="Scroll to services"><ArrowDownRight size={18} /></a>
           </div>
         </section>
 
@@ -281,10 +299,13 @@ function App() {
           </div>
         </div>
 
-        {/* SELECTED WORK */}
+        {/* 02: FREELANCE SERVICES */}
+        <FreelanceServices onInspectCaseStudy={handleOpenCaseStudy} />
+
+        {/* 03: SELECTED WORK */}
         <section className="work-section section-wrap section-pad" id="work">
           <SectionHeading
-            index="02"
+            index="03"
             eyebrow="A FEW THINGS I’VE BUILT"
             title={<>Selected work<span className="headline-period">.</span></>}
             note={
@@ -328,11 +349,36 @@ function App() {
           </div>
         </section>
 
-        {/* ABOUT SECTION */}
+        {/* 04: CHESS-PIECE QUALITIES */}
+        <InteractiveChessQualities onInspectCaseStudy={handleOpenCaseStudy} />
+
+        {/* 05: STACK & TOOLBELT SECTION */}
+        <section className="stack-section section-wrap section-pad" id="stack">
+          <SectionHeading
+            index="05"
+            eyebrow="TOOLS I REACH FOR"
+            title={<>My working stack<span className="headline-period">.</span></>}
+            note={
+              activeTech
+                ? `Technology inspected: ${activeTech}. Click to toggle persistent filter mode.`
+                : "A practical toolkit developed across web applications, real-time services, and applied AI projects."
+            }
+          />
+          <InteractiveTechToolbelt
+            selectedTech={selectedTech}
+            hoveredTech={hoveredTech}
+            onSelectTech={setSelectedTech}
+            onHoverTech={setHoveredTech}
+            onInspectCaseStudy={handleOpenCaseStudy}
+            projects={projects}
+          />
+        </section>
+
+        {/* 06: ABOUT & PRINCIPLES SECTION */}
         <section className="about-section section-pad" id="about">
           <div className="section-wrap">
             <SectionHeading
-              index="03"
+              index="06"
               eyebrow="ENGINEERING BACKGROUND & PERSPECTIVE"
               title={<>The why behind<br />the work<span className="headline-period">.</span></>}
               note="Bridging foundational hardware principles with robust, practical software engineering."
@@ -364,48 +410,26 @@ function App() {
           </div>
         </section>
 
-        {/* STACK SECTION */}
-        <section className="stack-section section-wrap section-pad" id="stack">
-          <SectionHeading
-            index="04"
-            eyebrow="TOOLS I REACH FOR"
-            title={<>My working stack<span className="headline-period">.</span></>}
-            note={
-              activeTech
-                ? `Technology inspected: ${activeTech}. Click to toggle persistent filter mode.`
-                : "A practical toolkit developed across web applications, real-time services, and applied AI projects."
-            }
-          />
-          <InteractiveTechToolbelt
-            selectedTech={selectedTech}
-            hoveredTech={hoveredTech}
-            onSelectTech={setSelectedTech}
-            onHoverTech={setHoveredTech}
-            onInspectCaseStudy={handleOpenCaseStudy}
-            projects={projects}
-          />
-        </section>
-
-        {/* CONTACT SECTION */}
+        {/* 07: CONTACT SECTION */}
         <section className="contact-section section-pad" id="contact">
           <div className="contact-wrap section-wrap">
             <div className="contact-stamp">
-              <Sparkles size={16} /> OPEN TO CHALLENGING ENGINEERING OPPORTUNITIES
+              <Sparkles size={16} /> OPEN TO FREELANCE PROJECTS & CONTRACTS
             </div>
             <div className="contact-content">
               <div>
-                <p className="eyebrow">05 / GET IN TOUCH</p>
+                <p className="eyebrow">07 / GET IN TOUCH</p>
                 <h2>
                   Have a problem<br />
                   worth solving<span className="headline-period">?</span>
                 </h2>
                 <p className="contact-description">
-                  Whether you have an interesting product idea, an engineering challenge, or an opportunity where thoughtful full-stack development could help, I’d be glad to connect.
+                  Whether you have an interesting product idea, a custom business software requirement, or a project where thoughtful full-stack development could help, I’d be glad to discuss it.
                 </p>
               </div>
               <div className="contact-actions">
-                <a className="button button-primary contact-email" href="mailto:vasiharan030@gmail.com?subject=Let%27s%20build%20something">
-                  <Mail size={17} /> Say hello <ArrowUpRight size={17} />
+                <a className="button button-primary contact-email" href="mailto:vasiharan030@gmail.com?subject=Project%20Inquiry%20%E2%80%94%20Vasiharan%20B">
+                  <Mail size={17} /> Discuss a project <ArrowUpRight size={17} />
                 </a>
                 <a className="social-link" href="https://www.linkedin.com/in/vasiharan-b-ba0772322/" target="_blank" rel="noreferrer">
                   <Linkedin size={17} /> Connect on LinkedIn <ArrowUpRight size={15} />
@@ -416,7 +440,7 @@ function App() {
               </div>
             </div>
             <div className="contact-bottom">
-              <span><span className="status-dot" /> AVAILABLE FOR FULL-STACK & PRODUCT ENGINEERING</span>
+              <span><span className="status-dot" /> AVAILABLE FOR FREELANCE & PRODUCT ENGINEERING</span>
               <span>CHENNAI, INDIA · IST (UTC+5:30)</span>
             </div>
           </div>
