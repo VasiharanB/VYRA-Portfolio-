@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useState, useRef, type ReactNode } from 'react'
 import {
   ArrowDownRight, ArrowRight, ArrowUpRight, BrainCircuit, Building2, Check, Code2,
   ExternalLink, Github, Layers3, Linkedin, Mail, MapPin, Menu, MessageSquareText,
@@ -8,9 +8,12 @@ import HeroGyroscope from './components/hero/HeroGyroscope'
 import LoadingIntro from './components/intro/LoadingIntro'
 import CustomCursor from './components/cursor/CustomCursor'
 import InteractiveProjectCard from './components/work/InteractiveProjectCard'
+import CaseStudyDrawer from './components/work/CaseStudyDrawer'
+import { CASE_STUDIES } from './data/caseStudies'
 
 const projects = [
   {
+    id: 'smart-issue-tracker',
     number: '01',
     category: 'AI · TRIAGE WORKFLOWS',
     title: 'Smart Issue Tracker',
@@ -22,6 +25,7 @@ const projects = [
     featured: 'SEMANTIC DUPLICATE DETECTION',
   },
   {
+    id: 'cricket-conquest',
     number: '02',
     category: 'REAL-TIME SYSTEMS',
     title: 'Cricket Conquest',
@@ -33,6 +37,7 @@ const projects = [
     featured: 'LIVE AUCTION WORKFLOWS',
   },
   {
+    id: 'jgc-construction-erp',
     number: '03',
     category: 'BUSINESS SOFTWARE',
     title: 'JGC Construction ERP',
@@ -44,6 +49,7 @@ const projects = [
     featured: 'OPERATIONS, CRM & INVENTORY',
   },
   {
+    id: 'sms-spam-detection',
     number: '04',
     category: 'APPLIED ML & NLP',
     title: 'SMS Spam Detection',
@@ -55,6 +61,7 @@ const projects = [
     featured: 'SPAM / HAM CLASSIFIER',
   },
   {
+    id: 'fittrack-desktop',
     number: '05',
     category: 'DESKTOP ENGINEERING',
     title: 'FitTrack Desktop',
@@ -66,6 +73,7 @@ const projects = [
     featured: 'DATA VISUALISATION & STORAGE',
   },
   {
+    id: 'aethon-ai',
     number: '06',
     category: 'COLLABORATIVE PLATFORMS',
     title: 'Aethon AI',
@@ -135,7 +143,22 @@ function SectionHeading({ index, eyebrow, title, note }: { index: string; eyebro
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [showIntro, setShowIntro] = useState(true)
+  const [activeCaseStudyId, setActiveCaseStudyId] = useState<string | null>(null)
+  const lastActiveTriggerRef = useRef<HTMLElement | null>(null)
+
   const closeMenu = () => setMenuOpen(false)
+
+  const handleOpenCaseStudy = (id: string) => {
+    lastActiveTriggerRef.current = document.activeElement as HTMLElement
+    setActiveCaseStudyId(id)
+  }
+
+  const handleCloseCaseStudy = () => {
+    setActiveCaseStudyId(null)
+    setTimeout(() => {
+      lastActiveTriggerRef.current?.focus()
+    }, 40)
+  }
 
   return (
     <div className="site-shell">
@@ -256,7 +279,12 @@ function App() {
           />
           <div className="project-grid">
             {projects.map((project) => (
-              <InteractiveProjectCard key={project.number} project={project} />
+              <InteractiveProjectCard
+                key={project.id}
+                project={project}
+                onInspect={handleOpenCaseStudy}
+                isActive={activeCaseStudyId === project.id}
+              />
             ))}
           </div>
           <div className="more-work">
@@ -425,6 +453,13 @@ function App() {
           <a href="#home" aria-label="Back to top"><ArrowRight size={17} /></a>
         </div>
       </footer>
+
+      {/* INTERACTIVE CASE STUDY SLIDE-OVER DRAWER */}
+      <CaseStudyDrawer
+        isOpen={Boolean(activeCaseStudyId)}
+        study={activeCaseStudyId ? CASE_STUDIES[activeCaseStudyId] || null : null}
+        onClose={handleCloseCaseStudy}
+      />
     </div>
   )
 }
