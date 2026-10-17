@@ -60,7 +60,13 @@ export function CustomCursor() {
         nextMode = 'hidden'
       } else if (target.closest('.project-card')) {
         nextMode = 'inspect'
-      } else if (target.closest('.gyroscope-3d-container') || target.closest('.hero-art') || target.closest('.orbital-stage')) {
+      } else if (
+        target.closest('.strategic-3d-container') ||
+        target.closest('.gyroscope-3d-container') ||
+        target.closest('.hero-art') ||
+        target.closest('.strategic-stage') ||
+        target.closest('.orbital-stage')
+      ) {
         nextMode = 'orbit'
       } else if (
         target.closest('button, a, .nav-cta, .project-open, .social-link, [role="button"]')
@@ -146,7 +152,7 @@ export function CustomCursor() {
 
         {/* Dynamic Context Badge */}
         {mode === 'inspect' && <span className="cursor-label">INSPECT ↗</span>}
-        {mode === 'orbit' && <span className="cursor-label">ORBIT 3D</span>}
+        {mode === 'orbit' && <span className="cursor-label">STRATEGY 3D</span>}
       </div>
     </div>
   )

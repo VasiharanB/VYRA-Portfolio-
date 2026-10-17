@@ -56,10 +56,10 @@ function App() {
             <div className="hero-actions"><a className="button button-primary" href="#work">Explore selected work <ArrowDownRight size={17} /></a><a className="button button-quiet" href="mailto:vasiharan030@gmail.com?subject=Let%27s%20connect">Get in touch <ArrowUpRight size={16} /></a></div>
             <div className="hero-meta"><span><MapPin size={14} /> Chennai, India</span><span className="meta-separator" /><span>Curious by default. Systems-minded by design.</span></div>
           </div>
-          <div className="hero-art" aria-label="Abstract VYRA orbital visual">
-            <div className="art-topline"><span>FIG. 01 — BUILDING IN MOTION</span><span className="art-live"><i /> VYRA / 001</span></div>
+          <div className="hero-art" aria-label="VYRA Strategic Systems — 3D Chess Experience">
+            <div className="art-topline"><span>FIG. 01 — STRATEGIC SYSTEMS</span><span className="art-live"><i /> VYRA / CHESS v2.4</span></div>
             <HeroGyroscope />
-            <div className="art-bottomline"><div><span className="mini-label">CURRENT MODE</span><strong>Learn / Build / Iterate</strong></div><div className="art-index">13° 00' N<br />80° 14' E</div></div>
+            <div className="art-bottomline"><div><span className="mini-label">SYSTEM VECTORS</span><strong>Strategy · Architecture · Execution</strong></div><div className="art-index">13° 00' N<br />80° 14' E</div></div>
           </div>
           <div className="hero-bottom"><span className="scroll-cue"><span /> SCROLL TO EXPLORE</span><span className="hero-bottom-note">A PORTFOLIO OF THINGS MADE TO BE USEFUL.</span><a href="#work" aria-label="Scroll to selected work"><ArrowDownRight size={18} /></a></div>
         </section>

@@ -1,10 +1,10 @@
 import React, { useState, Suspense } from 'react'
 import { useWebGLSupport } from '../../hooks/useWebGLSupport'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
-import { OrbitalFallback } from './OrbitalFallback'
+import { StrategicFallback } from './StrategicFallback'
 
-// Lazy-load the heavy 3D canvas so initial bundle execution is lightweight
-const GyroscopeCanvas = React.lazy(() => import('./GyroscopeCanvas'))
+// Lazy-load the 3D Strategic Chess Canvas so initial bundle load remains ultra-fast
+const StrategicChessCanvas = React.lazy(() => import('./StrategicChessCanvas'))
 
 interface ErrorBoundaryProps {
   children: React.ReactNode
@@ -27,7 +27,7 @@ class ThreeErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.warn('[VYRA 3D Engine] Falling back to 2D Orbital Graphic due to render error:', error, errorInfo)
+    console.warn('[VYRA Strategic 3D] Falling back to 2D Graphic due to render error:', error, errorInfo)
   }
 
   render() {
@@ -43,7 +43,6 @@ export function HeroGyroscope() {
   const prefersReducedMotion = useReducedMotion()
 
   const [contextError, setContextError] = useState<string | null>(null)
-  // Allow manual toggle for auditing and comparison
   const [manualMode, setManualMode] = useState<'auto' | '2d' | '3d'>('auto')
 
   // Determine whether to show 3D or 2D fallback
@@ -65,7 +64,7 @@ export function HeroGyroscope() {
 
   return (
     <div className="hero-gyroscope-wrapper" style={{ position: 'relative', width: '100%', height: '100%' }}>
-      {/* Engine Switcher / Mode indicator integrated into top-right of the unboxed spatial area */}
+      {/* Visual Engine Mode Switcher in top right of the unboxed spatial hero */}
       <div
         className="engine-toggle-hud"
         style={{
@@ -96,7 +95,7 @@ export function HeroGyroscope() {
             fontFamily: 'var(--mono)',
             transition: 'all 0.2s',
           }}
-          title="Click to toggle between real-time 3D and 2D fallback"
+          title="Click to toggle between real-time 3D and 2D strategic graphic"
           aria-label={`Current visual engine: ${shouldUseFallback ? '2D Fallback' : '3D WebGL'}. Click to toggle.`}
         >
           {shouldUseFallback ? 'MODE: 2D FALLBACK' : 'MODE: 3D WEBGL'} ⟳
@@ -104,14 +103,14 @@ export function HeroGyroscope() {
       </div>
 
       {shouldUseFallback ? (
-        <OrbitalFallback reason={fallbackReason} />
+        <StrategicFallback reason={fallbackReason} />
       ) : (
-        <ThreeErrorBoundary fallback={<OrbitalFallback reason="Runtime 3D boundary caught error" />}>
-          <Suspense fallback={<OrbitalFallback reason="Loading 3D scene" />}>
-            <GyroscopeCanvas
+        <ThreeErrorBoundary fallback={<StrategicFallback reason="Runtime 3D boundary caught error" />}>
+          <Suspense fallback={<StrategicFallback reason="Loading 3D scene" />}>
+            <StrategicChessCanvas
               reducedMotion={prefersReducedMotion}
               onContextLoss={(reason) => {
-                console.warn('[VYRA 3D Engine] Context loss triggered:', reason)
+                console.warn('[VYRA Strategic 3D] Context loss triggered:', reason)
                 setContextError(reason)
               }}
             />
