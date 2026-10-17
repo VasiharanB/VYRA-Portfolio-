@@ -8,6 +8,7 @@ import type { ArchitectureNode } from '../../data/caseStudies'
 interface CaseStudyArchitectureDiagramProps {
   overview: string
   nodes: ArchitectureNode[]
+  flowLabels?: string[]
   tone?: string
 }
 
@@ -28,16 +29,17 @@ function getNodeIcon(layer: string, index: number) {
   return index === 0 ? Monitor : index === 1 ? Network : index === 2 ? Layers3 : HardDrive
 }
 
-// Flow connector descriptions between the standard 4 layers
+// Fallback flow connector descriptions between layers
 const DEFAULT_FLOW_LABELS = [
-  'Validated Input / Auth Token',
-  'Query Execution / Data Framing',
-  'Atomic Transaction / Persistent State'
+  'Data Input / Auth Token',
+  'Service Routing / Process Framing',
+  'State Persistence & Database Commit'
 ]
 
 export function CaseStudyArchitectureDiagram({
   overview,
   nodes,
+  flowLabels,
   tone = 'lime'
 }: CaseStudyArchitectureDiagramProps) {
   const diagramId = useId()
@@ -48,7 +50,7 @@ export function CaseStudyArchitectureDiagram({
         <div className="diagram-topline">
           <span className="diagram-tag">TOPOLOGY SPECIFICATION</span>
           <span className="diagram-status">
-            <span className="status-live-dot" /> VERIFIED TIERS ({nodes.length})
+            <span className="status-live-dot" /> SYSTEM LAYERS ({nodes.length})
           </span>
         </div>
         <p className="diagram-overview-text">{overview}</p>
@@ -58,7 +60,7 @@ export function CaseStudyArchitectureDiagram({
         {nodes.map((node, index) => {
           const NodeIcon = getNodeIcon(node.layer, index)
           const isLast = index === nodes.length - 1
-          const flowLabel = DEFAULT_FLOW_LABELS[index] || 'Data Stream'
+          const flowLabel = flowLabels?.[index] || DEFAULT_FLOW_LABELS[index] || 'Data Stream'
 
           return (
             <div key={`${diagramId}-node-${index}`} className="architecture-step-wrapper">

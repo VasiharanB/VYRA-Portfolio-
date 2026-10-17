@@ -1,4 +1,4 @@
-import { useState, useRef, type ReactNode } from 'react'
+import { useState, useRef, lazy, Suspense, startTransition, type ReactNode } from 'react'
 import {
   ArrowDownRight, ArrowRight, ArrowUpRight, BrainCircuit, Building2, Check, Code2,
   ExternalLink, Github, Layers3, Linkedin, Mail, MapPin, Menu, MessageSquareText,
@@ -8,8 +8,9 @@ import HeroGyroscope from './components/hero/HeroGyroscope'
 import LoadingIntro from './components/intro/LoadingIntro'
 import CustomCursor from './components/cursor/CustomCursor'
 import InteractiveProjectCard from './components/work/InteractiveProjectCard'
-import CaseStudyDrawer from './components/work/CaseStudyDrawer'
-import { CASE_STUDIES } from './data/caseStudies'
+
+// Code-split CaseStudyDrawer to keep the initial page bundle lean
+const CaseStudyDrawer = lazy(() => import('./components/work/CaseStudyDrawer'))
 
 const projects = [
   {
@@ -144,13 +145,17 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [showIntro, setShowIntro] = useState(true)
   const [activeCaseStudyId, setActiveCaseStudyId] = useState<string | null>(null)
+  const [hasOpenedDrawer, setHasOpenedDrawer] = useState(false)
   const lastActiveTriggerRef = useRef<HTMLElement | null>(null)
 
   const closeMenu = () => setMenuOpen(false)
 
   const handleOpenCaseStudy = (id: string) => {
     lastActiveTriggerRef.current = document.activeElement as HTMLElement
-    setActiveCaseStudyId(id)
+    startTransition(() => {
+      setHasOpenedDrawer(true)
+      setActiveCaseStudyId(id)
+    })
   }
 
   const handleCloseCaseStudy = () => {
@@ -158,6 +163,11 @@ function App() {
     setTimeout(() => {
       lastActiveTriggerRef.current?.focus()
     }, 40)
+  }
+
+  const handlePrefetch = () => {
+    // Preload chunk in background when user hovers or focuses on inspect button
+    import('./components/work/CaseStudyDrawer')
   }
 
   return (
@@ -283,6 +293,7 @@ function App() {
                 key={project.id}
                 project={project}
                 onInspect={handleOpenCaseStudy}
+                onPrefetch={handlePrefetch}
                 isActive={activeCaseStudyId === project.id}
               />
             ))}
@@ -454,12 +465,16 @@ function App() {
         </div>
       </footer>
 
-      {/* INTERACTIVE CASE STUDY SLIDE-OVER DRAWER */}
-      <CaseStudyDrawer
-        isOpen={Boolean(activeCaseStudyId)}
-        study={activeCaseStudyId ? CASE_STUDIES[activeCaseStudyId] || null : null}
-        onClose={handleCloseCaseStudy}
-      />
+      {/* INTERACTIVE CASE STUDY SLIDE-OVER DRAWER (CODE-SPLIT) */}
+      {hasOpenedDrawer && (
+        <Suspense fallback={null}>
+          <CaseStudyDrawer
+            isOpen={Boolean(activeCaseStudyId)}
+            studyId={activeCaseStudyId}
+            onClose={handleCloseCaseStudy}
+          />
+        </Suspense>
+      )}
     </div>
   )
 }

@@ -18,12 +18,14 @@ export interface ProjectData {
 interface InteractiveProjectCardProps {
   project: ProjectData
   onInspect: (projectId: string) => void
+  onPrefetch?: () => void
   isActive?: boolean
 }
 
 export function InteractiveProjectCard({
   project,
   onInspect,
+  onPrefetch,
   isActive = false,
 }: InteractiveProjectCardProps) {
   const cardRef = useRef<HTMLElement>(null)
@@ -130,6 +132,8 @@ export function InteractiveProjectCard({
               e.stopPropagation()
               onInspect(project.id)
             }}
+            onMouseEnter={onPrefetch}
+            onFocus={onPrefetch}
             aria-haspopup="dialog"
             aria-expanded={isActive}
             aria-label={`Inspect ${project.title} case study`}

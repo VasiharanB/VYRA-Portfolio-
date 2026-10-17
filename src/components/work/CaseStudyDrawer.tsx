@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -6,20 +6,29 @@ import {
   CheckCircle2, AlertTriangle, Cpu, Workflow as WorkflowIcon,
   Layers, Code2
 } from 'lucide-react'
-import type { CaseStudyData } from '../../data/caseStudies'
+import { CASE_STUDIES, type CaseStudyData } from '../../data/caseStudies'
 import CaseStudyArchitectureDiagram from './CaseStudyArchitectureDiagram'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
 
 interface CaseStudyDrawerProps {
   isOpen: boolean
-  study: CaseStudyData | null
+  studyId: string | null
   onClose: () => void
 }
 
-export function CaseStudyDrawer({ isOpen, study, onClose }: CaseStudyDrawerProps) {
+export function CaseStudyDrawer({ isOpen, studyId, onClose }: CaseStudyDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const prefersReducedMotion = useReducedMotion()
+  const [cachedStudy, setCachedStudy] = useState<CaseStudyData | null>(null)
+
+  useEffect(() => {
+    if (studyId && CASE_STUDIES[studyId]) {
+      setCachedStudy(CASE_STUDIES[studyId])
+    }
+  }, [studyId])
+
+  const study = (studyId && CASE_STUDIES[studyId]) || cachedStudy
 
   // Prevent background scrolling while drawer is open
   useEffect(() => {
@@ -77,7 +86,8 @@ export function CaseStudyDrawer({ isOpen, study, onClose }: CaseStudyDrawerProps
     }
   }, [isOpen, handleKeyDown])
 
-  if (!study) return null
+  if (typeof document === 'undefined') return null
+  if (!study && !isOpen) return null
 
   // Motion variants with reduced motion support
   const backdropVariants = {
@@ -104,11 +114,9 @@ export function CaseStudyDrawer({ isOpen, study, onClose }: CaseStudyDrawerProps
         },
       }
 
-  if (typeof document === 'undefined') return null
-
   return createPortal(
     <AnimatePresence>
-      {isOpen && (
+      {isOpen && study && (
         <div className="case-study-portal-root" role="none">
           {/* Backdrop Scrim */}
           <motion.div
@@ -177,7 +185,7 @@ export function CaseStudyDrawer({ isOpen, study, onClose }: CaseStudyDrawerProps
                 <div className="drawer-kicker">
                   <span className="kicker-badge">ENGINEERING CASE STUDY</span>
                   <span className="kicker-verified">
-                    <ShieldCheck size={13} /> SOURCE VERIFIED
+                    <ShieldCheck size={13} /> SOURCE AUDITED
                   </span>
                 </div>
 
@@ -196,7 +204,7 @@ export function CaseStudyDrawer({ isOpen, study, onClose }: CaseStudyDrawerProps
                 {/* Verified Tech Stack Pills */}
                 <div className="drawer-stack-pills" aria-label="Verified technologies used">
                   <span className="stack-label">
-                    <Code2 size={13} /> VERIFIED STACK:
+                    <Code2 size={13} /> CONFIRMED STACK:
                   </span>
                   <div className="pills-row">
                     {study.stack.map((tech) => (
@@ -215,7 +223,7 @@ export function CaseStudyDrawer({ isOpen, study, onClose }: CaseStudyDrawerProps
                     <AlertTriangle size={15} />
                   </div>
                   <h3 id="problem-heading" className="section-title">
-                    Problem Context & Friction
+                    Problem Context & Operational Friction
                   </h3>
                 </div>
 
@@ -273,6 +281,7 @@ export function CaseStudyDrawer({ isOpen, study, onClose }: CaseStudyDrawerProps
                 <CaseStudyArchitectureDiagram
                   overview={study.architecture.overview}
                   nodes={study.architecture.nodes}
+                  flowLabels={study.architecture.flowLabels}
                   tone={study.tone}
                 />
               </section>
@@ -353,7 +362,7 @@ export function CaseStudyDrawer({ isOpen, study, onClose }: CaseStudyDrawerProps
 
               <div className="drawer-source-verification-notice">
                 <span>
-                  All technical descriptions and architectures verified from public repository commits on GitHub.
+                  Technical descriptions, workflows, and system architectures documented directly from confirmed public repository source code.
                 </span>
               </div>
             </div>
