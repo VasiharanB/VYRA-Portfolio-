@@ -1,8 +1,8 @@
-import { useState, useRef, lazy, Suspense, startTransition, type ReactNode } from 'react'
+import { useState, useEffect, useRef, lazy, Suspense, startTransition, type ReactNode } from 'react'
 import {
   ArrowDownRight, ArrowRight, ArrowUpRight, BrainCircuit, Building2, Check, Code2,
   ExternalLink, Github, Layers3, Linkedin, Mail, MapPin, Menu, MessageSquareText,
-  Radio, Sparkles, Trophy, Workflow, X,
+  Radio, Search, Sparkles, Trophy, Workflow, X,
 } from 'lucide-react'
 import HeroGyroscope from './components/hero/HeroGyroscope'
 import LoadingIntro from './components/intro/LoadingIntro'
@@ -11,84 +11,14 @@ import InteractiveProjectCard from './components/work/InteractiveProjectCard'
 import InteractivePrinciples from './components/about/InteractivePrinciples'
 import InteractiveTechToolbelt from './components/stack/InteractiveTechToolbelt'
 import { TECH_TO_PROJECTS } from './data/skillsData'
+import { PROJECTS } from './data/projectsData'
 
-// Code-split CaseStudyDrawer to keep the initial page bundle lean
+// Code-split modals and drawers to keep the initial page bundle lean
 const CaseStudyDrawer = lazy(() => import('./components/work/CaseStudyDrawer'))
+const CommandPalette = lazy(() => import('./components/command/CommandPalette'))
 
-const projects = [
-  {
-    id: 'smart-issue-tracker',
-    number: '01',
-    category: 'AI · TRIAGE WORKFLOWS',
-    title: 'Smart Issue Tracker',
-    description: 'A support-ticket workflow with semantic duplicate-ticket detection and AI-assisted verification, preventing redundant triage.',
-    stack: ['React', 'TypeScript', 'Django', 'PostgreSQL', 'FAISS'],
-    href: 'https://github.com/VasiharanB/Smart-Issue-Tracker',
-    icon: BrainCircuit,
-    tone: 'violet',
-    featured: 'SEMANTIC DUPLICATE DETECTION',
-  },
-  {
-    id: 'cricket-conquest',
-    number: '02',
-    category: 'REAL-TIME SYSTEMS',
-    title: 'Cricket Conquest',
-    description: 'A real-time IPL auction platform with live bidding workflows, organizer management tools, and role-based access control.',
-    stack: ['React', 'TypeScript', 'Node.js', 'WebSockets', 'MySQL'],
-    href: 'https://github.com/VasiharanB/cricket-conquest-ipl-auction',
-    icon: Trophy,
-    tone: 'lime',
-    featured: 'LIVE AUCTION WORKFLOWS',
-  },
-  {
-    id: 'jgc-construction-erp',
-    number: '03',
-    category: 'BUSINESS SOFTWARE',
-    title: 'JGC Construction ERP',
-    description: 'A construction operations system coordinating project sites, client relationships (CRM), vendor workflows, and materials inventory in one platform.',
-    stack: ['PHP', 'MySQL', 'JavaScript', 'SQL'],
-    href: 'https://github.com/VasiharanB/jgc_constructions',
-    icon: Building2,
-    tone: 'orange',
-    featured: 'OPERATIONS, CRM & INVENTORY',
-  },
-  {
-    id: 'sms-spam-detection',
-    number: '04',
-    category: 'APPLIED ML & NLP',
-    title: 'SMS Spam Detection',
-    description: 'A Django-based machine learning application for spam/ham message classification with persistent prediction history and admin reporting tools.',
-    stack: ['Python', 'Django', 'Scikit-learn', 'SQLite'],
-    href: 'https://github.com/VasiharanB/sms_spam_detection',
-    icon: MessageSquareText,
-    tone: 'blue',
-    featured: 'SPAM / HAM CLASSIFIER',
-  },
-  {
-    id: 'fittrack-desktop',
-    number: '05',
-    category: 'DESKTOP ENGINEERING',
-    title: 'FitTrack Desktop',
-    description: 'A Python desktop application built with Tkinter, SQLite, and Matplotlib for biometric tracking, persistent health records, and analytical data visualisation.',
-    stack: ['Python', 'Tkinter', 'SQLite', 'Matplotlib'],
-    href: 'https://github.com/VasiharanB/FitTrack-Desktop',
-    icon: Radio,
-    tone: 'pink',
-    featured: 'DATA VISUALISATION & STORAGE',
-  },
-  {
-    id: 'aethon-ai',
-    number: '06',
-    category: 'COLLABORATIVE PLATFORMS',
-    title: 'Aethon AI',
-    description: 'A collaborative placement-preparation and assessment platform providing structured practice modules, admin evaluation, and AI-assisted learning.',
-    stack: ['React', 'TypeScript', 'Node.js', 'Express', 'MySQL'],
-    href: 'https://github.com/VasiharanB/aethon-ai',
-    icon: Workflow,
-    tone: 'mint',
-    featured: 'ASSESSMENT & PREPARATION',
-  },
-]
+const projects = PROJECTS
+
 
 function SectionHeading({ index, eyebrow, title, note }: { index: string; eyebrow: string; title: ReactNode; note?: string }) {
   return (
@@ -110,6 +40,8 @@ function App() {
   const [showIntro, setShowIntro] = useState(true)
   const [activeCaseStudyId, setActiveCaseStudyId] = useState<string | null>(null)
   const [hasOpenedDrawer, setHasOpenedDrawer] = useState(false)
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
+  const [hasOpenedCommandPalette, setHasOpenedCommandPalette] = useState(false)
   const [selectedTech, setSelectedTech] = useState<string | null>(null)
   const [hoveredTech, setHoveredTech] = useState<string | null>(null)
   const lastActiveTriggerRef = useRef<HTMLElement | null>(null)
@@ -134,6 +66,76 @@ function App() {
       lastActiveTriggerRef.current?.focus()
     }, 40)
   }
+
+  const handleOpenCommandPalette = () => {
+    lastActiveTriggerRef.current = document.activeElement as HTMLElement
+    startTransition(() => {
+      setHasOpenedCommandPalette(true)
+      setIsCommandPaletteOpen(true)
+    })
+  }
+
+  const handleCloseCommandPalette = () => {
+    setIsCommandPaletteOpen(false)
+    setTimeout(() => {
+      lastActiveTriggerRef.current?.focus()
+    }, 40)
+  }
+
+  const handleSelectProjectFromPalette = (projectId: string) => {
+    handleOpenCaseStudy(projectId)
+  }
+
+  const handleSelectTechnologyFromPalette = (tech: string) => {
+    setSelectedTech(tech)
+    const el = document.getElementById('work')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
+  const handleNavigateSectionFromPalette = (sectionId: string) => {
+    const el = document.getElementById(sectionId)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
+  const handleReplayIntro = () => {
+    try {
+      sessionStorage.removeItem('vyra_intro_seen')
+    } catch {}
+    setShowIntro(true)
+  }
+
+  // Global keyboard shortcut listener for Ctrl+K / ⌘K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        const target = e.target as HTMLElement
+        const isTyping =
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable
+
+        // If typing in another input and palette is not already open, avoid hijacking
+        if (isTyping && !isCommandPaletteOpen) {
+          return
+        }
+
+        e.preventDefault()
+        if (isCommandPaletteOpen) {
+          handleCloseCommandPalette()
+        } else {
+          handleOpenCommandPalette()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isCommandPaletteOpen])
 
   const handlePrefetch = () => {
     // Preload chunk in background when user hovers or focuses on inspect button
@@ -163,6 +165,18 @@ function App() {
             <a href="#about">About <span>03</span></a>
             <a href="#stack">Stack <span>04</span></a>
           </nav>
+          <button
+            type="button"
+            className="nav-command-btn"
+            onClick={handleOpenCommandPalette}
+            onMouseEnter={() => import('./components/command/CommandPalette')}
+            aria-label="Open command palette (Ctrl+K or ⌘K)"
+            title="Open command palette (Ctrl+K / ⌘K)"
+          >
+            <Search size={13} strokeWidth={2} />
+            <span>Search</span>
+            <kbd className="nav-kbd">{typeof navigator !== 'undefined' && /Mac|iPhone|iPad/i.test(navigator.userAgent) ? '⌘K' : 'Ctrl K'}</kbd>
+          </button>
           <a className="nav-cta" href="#contact">
             Let’s talk <ArrowUpRight size={15} strokeWidth={1.8} />
           </a>
@@ -178,6 +192,19 @@ function App() {
         </div>
         {menuOpen ? (
           <nav className="mobile-nav" aria-label="Mobile navigation">
+            <button
+              type="button"
+              className="mobile-nav-command"
+              onClick={() => {
+                closeMenu()
+                handleOpenCommandPalette()
+              }}
+            >
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Search size={15} /> Search & commands
+              </span>
+              <kbd>⌘K</kbd>
+            </button>
             <a href="#work" onClick={closeMenu}>Selected work <ArrowUpRight size={16} /></a>
             <a href="#about" onClick={closeMenu}>About me <ArrowUpRight size={16} /></a>
             <a href="#stack" onClick={closeMenu}>Tech stack <ArrowUpRight size={16} /></a>
@@ -406,6 +433,14 @@ function App() {
           <button
             type="button"
             className="replay-intro-btn"
+            onClick={handleOpenCommandPalette}
+            title="Open command palette (Ctrl+K / ⌘K)"
+          >
+            [COMMANDS ⌘K]
+          </button>
+          <button
+            type="button"
+            className="replay-intro-btn"
             onClick={() => {
               try { sessionStorage.removeItem('vyra_intro_seen') } catch {}
               setShowIntro(true)
@@ -425,6 +460,20 @@ function App() {
             isOpen={Boolean(activeCaseStudyId)}
             studyId={activeCaseStudyId}
             onClose={handleCloseCaseStudy}
+          />
+        </Suspense>
+      )}
+
+      {/* COMMAND PALETTE MODAL (CODE-SPLIT) */}
+      {hasOpenedCommandPalette && (
+        <Suspense fallback={null}>
+          <CommandPalette
+            isOpen={isCommandPaletteOpen}
+            onClose={handleCloseCommandPalette}
+            onSelectProject={handleSelectProjectFromPalette}
+            onSelectTechnology={handleSelectTechnologyFromPalette}
+            onNavigateSection={handleNavigateSectionFromPalette}
+            onReplayIntro={handleReplayIntro}
           />
         </Suspense>
       )}
