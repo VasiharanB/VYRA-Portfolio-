@@ -64,20 +64,20 @@ export function HeroGyroscope() {
 
   return (
     <div className="hero-gyroscope-wrapper" style={{ position: 'relative', width: '100%', height: '100%' }}>
-      {/* Visual Engine Mode Switcher in top right of the unboxed spatial hero */}
+      {/* Visual View Mode Switcher */}
       <div
         className="engine-toggle-hud"
         style={{
           position: 'absolute',
-          top: '10px',
-          right: '8px',
+          top: '12px',
+          right: '10px',
           zIndex: 6,
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
           fontFamily: 'var(--mono)',
           fontSize: '8px',
-          letterSpacing: '0.1em',
+          letterSpacing: '0.08em',
         }}
       >
         <button
@@ -87,21 +87,22 @@ export function HeroGyroscope() {
             setManualMode((m) => (m === '2d' ? '3d' : '2d'))
           }}
           style={{
-            background: 'rgba(17, 19, 17, 0.75)',
+            background: 'rgba(17, 19, 17, 0.65)',
             backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(240, 243, 231, 0.16)',
-            color: shouldUseFallback ? '#a0a39a' : 'var(--acid)',
+            border: '1px solid rgba(240, 243, 231, 0.14)',
+            color: shouldUseFallback ? '#9ea396' : 'var(--acid)',
             padding: '3px 8px',
             borderRadius: '4px',
             cursor: 'pointer',
             fontSize: '8px',
             fontFamily: 'var(--mono)',
+            letterSpacing: '0.08em',
             transition: 'all 0.2s',
           }}
-          title="Click to toggle between real-time 3D and 2D strategic graphic"
-          aria-label={`Current visual engine: ${shouldUseFallback ? '2D Fallback' : '3D WebGL'}. Click to toggle.`}
+          title="Toggle between real-time 3D and 2D graphic view"
+          aria-label={`Current view: ${shouldUseFallback ? '2D View' : '3D Scene'}. Click to toggle.`}
         >
-          {shouldUseFallback ? 'MODE: 2D FALLBACK' : 'MODE: 3D WEBGL'} ⟳
+          {shouldUseFallback ? '2D VIEW' : '3D SCENE'} ⟳
         </button>
       </div>
 

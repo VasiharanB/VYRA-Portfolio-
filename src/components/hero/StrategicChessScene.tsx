@@ -9,6 +9,7 @@ interface StrategicChessSceneProps {
   reducedMotion: boolean
   activeVector: StrategicVector | null
   onVectorSelect: (vector: StrategicVector | null) => void
+  scrollProgressRef?: React.RefObject<number>
 }
 
 export function StrategicChessScene({
@@ -16,36 +17,66 @@ export function StrategicChessScene({
   reducedMotion,
   activeVector,
   onVectorSelect,
+  scrollProgressRef,
 }: StrategicChessSceneProps) {
   const masterGroupRef = useRef<THREE.Group>(null!)
   const { pointer } = useThree()
 
-  // Restrained, subtle cursor-reactive camera parallax (±4 degrees max, NO wild spinning)
-  useFrame(() => {
+  // Continuous animation loop: idle drift, cursor parallax, and scroll-linked perspective
+  useFrame((state) => {
     if (!masterGroupRef.current) return
 
-    if (!reducedMotion) {
-      const targetRotationY = pointer.x * 0.16
-      const targetRotationX = -pointer.y * 0.10
-
-      masterGroupRef.current.rotation.y = THREE.MathUtils.lerp(
-        masterGroupRef.current.rotation.y,
-        targetRotationY,
-        0.04
-      )
-      masterGroupRef.current.rotation.x = THREE.MathUtils.lerp(
-        masterGroupRef.current.rotation.x,
-        targetRotationX,
-        0.04
-      )
+    if (reducedMotion) {
+      masterGroupRef.current.position.set(0, -0.15, 0)
+      masterGroupRef.current.rotation.set(0, 0, 0)
+      return
     }
+
+    const t = state.clock.getElapsedTime()
+
+    // 1. Very slow, continuous smooth idle rotation and gentle floating breathing
+    // Bounded harmonic yaw (±7.5 degrees) preserving heroic 3/4 presentation and frontal key lighting
+    const idleYaw = Math.sin(t * 0.38) * 0.13
+    const idlePitch = Math.cos(t * 0.28) * 0.028
+    const idleElevation = Math.sin(t * 0.55) * 0.028
+
+    // 2. Interactive cursor parallax (gentle tilt responding to pointer)
+    const pointerYaw = pointer.x * 0.13
+    const pointerPitch = -pointer.y * 0.07
+
+    // 3. Subtle scroll-linked movement (perspective shift as visitor moves through hero)
+    const scroll = scrollProgressRef?.current ?? 0
+    const scrollYaw = scroll * 0.18
+    const scrollPitch = scroll * -0.09
+    const scrollElevation = scroll * -0.14
+
+    // Target transformations
+    const targetRotationY = idleYaw + pointerYaw + scrollYaw
+    const targetRotationX = idlePitch + pointerPitch + scrollPitch
+    const targetPositionY = -0.15 + idleElevation + scrollElevation
+
+    masterGroupRef.current.rotation.y = THREE.MathUtils.lerp(
+      masterGroupRef.current.rotation.y,
+      targetRotationY,
+      0.04
+    )
+    masterGroupRef.current.rotation.x = THREE.MathUtils.lerp(
+      masterGroupRef.current.rotation.x,
+      targetRotationX,
+      0.04
+    )
+    masterGroupRef.current.position.y = THREE.MathUtils.lerp(
+      masterGroupRef.current.position.y,
+      targetPositionY,
+      0.04
+    )
   })
 
-  // Dynamic substrate point-light position based on active strategic vector
+  // Dynamic substrate point-light position based on active domain vector
   const accentLightPos = useMemo<[number, number, number]>(() => {
-    if (activeVector === 'STRATEGY') return [-1.15, -0.2, 2.3]
-    if (activeVector === 'ARCHITECTURE') return [1.15, -0.2, 2.3]
-    if (activeVector === 'EXECUTION') return [2.3, -0.2, 1.15]
+    if (activeVector === 'APPLIED_AI') return [-1.15, -0.2, 2.3]
+    if (activeVector === 'REAL_TIME') return [1.15, -0.2, 2.3]
+    if (activeVector === 'BUSINESS_SOFTWARE') return [2.3, -0.2, 1.15]
     return [0, -0.4, 0.8]
   }, [activeVector])
 

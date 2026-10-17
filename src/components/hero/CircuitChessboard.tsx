@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import * as THREE from 'three'
 
-export type StrategicVector = 'STRATEGY' | 'ARCHITECTURE' | 'EXECUTION'
+export type StrategicVector = 'APPLIED_AI' | 'REAL_TIME' | 'BUSINESS_SOFTWARE'
 
 interface CircuitChessboardProps {
   activeVector: StrategicVector | null
@@ -26,25 +26,25 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
   const tileSize = 1.15
   const boardOffset = ((gridSize - 1) * tileSize) / 2
 
-  // Strategic Knight Move Target Positions (relative to knight base at center grid)
+  // Strategic Knight Move Target Positions (mapped to real engineering domains)
   const vectors = useMemo(() => [
     {
-      id: 'STRATEGY' as StrategicVector,
-      label: '01 // STRATEGY',
+      id: 'APPLIED_AI' as StrategicVector,
+      label: '01 // APPLIED AI',
       tileCoord: 'C6',
       x: -tileSize,
       z: tileSize * 2,
     },
     {
-      id: 'ARCHITECTURE' as StrategicVector,
-      label: '02 // ARCHITECTURE',
+      id: 'REAL_TIME' as StrategicVector,
+      label: '02 // REAL-TIME',
       tileCoord: 'E6',
       x: tileSize,
       z: tileSize * 2,
     },
     {
-      id: 'EXECUTION' as StrategicVector,
-      label: '03 // EXECUTION',
+      id: 'BUSINESS_SOFTWARE' as StrategicVector,
+      label: '03 // BUSINESS ERP',
       tileCoord: 'F5',
       x: tileSize * 2,
       z: tileSize,

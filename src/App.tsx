@@ -220,17 +220,12 @@ function App() {
           <div className="hero-art" aria-label="VYRA Strategic Systems — 3D Chess Experience">
             <div className="art-topline">
               <span>FIG. 01 — STRATEGIC SYSTEMS</span>
-              <span className="art-live"><i /> VYRA / CHESS v2.4</span>
             </div>
             <HeroGyroscope />
             <div className="art-bottomline">
               <div>
-                <span className="mini-label">SYSTEM VECTORS</span>
-                <strong>Strategy · Architecture · Execution</strong>
-              </div>
-              <div className="art-index">
-                13° 00' N<br />
-                80° 14' E
+                <span className="mini-label">ENGINEERING DOMAINS</span>
+                <strong>Applied AI · Real-time systems · Business software</strong>
               </div>
             </div>
           </div>

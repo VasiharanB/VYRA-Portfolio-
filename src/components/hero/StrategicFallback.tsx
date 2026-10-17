@@ -46,15 +46,15 @@ export function StrategicFallback({ reason }: StrategicFallbackProps) {
         {/* Circuit Bus Lines & Intersection Vias */}
         <path d="M300 370 L210 415 L180 400" stroke="var(--acid)" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.6" />
         <circle cx="180" cy="400" r="4" fill="var(--acid)" />
-        <text x="110" y="420" fill="var(--acid)" fontFamily="var(--mono)" fontSize="9" letterSpacing="0.1em">01 // STRATEGY</text>
+        <text x="95" y="420" fill="var(--acid)" fontFamily="var(--mono)" fontSize="9" letterSpacing="0.1em">01 // APPLIED AI</text>
 
         <path d="M300 370 L390 415 L430 395" stroke="var(--acid)" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.6" />
         <circle cx="430" cy="395" r="4" fill="var(--acid)" />
-        <text x="410" y="420" fill="var(--acid)" fontFamily="var(--mono)" fontSize="9" letterSpacing="0.1em">02 // ARCHITECTURE</text>
+        <text x="410" y="420" fill="var(--acid)" fontFamily="var(--mono)" fontSize="9" letterSpacing="0.1em">02 // REAL-TIME</text>
 
         <path d="M300 370 L300 445 L350 470" stroke="var(--acid)" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.8" />
         <circle cx="350" cy="470" r="4" fill="var(--acid)" />
-        <text x="320" y="490" fill="var(--acid)" fontFamily="var(--mono)" fontSize="9" letterSpacing="0.1em">03 // EXECUTION</text>
+        <text x="320" y="490" fill="var(--acid)" fontFamily="var(--mono)" fontSize="9" letterSpacing="0.1em">03 // BUSINESS ERP</text>
 
         {/* THE CHESS KNIGHT ICONIC SILHOUETTE */}
         <g transform="translate(300, 150) scale(1.1)">
@@ -97,8 +97,8 @@ export function StrategicFallback({ reason }: StrategicFallbackProps) {
 
       {/* Subtitle Stamp */}
       <div className="strategic-fallback-meta">
-        <span>STRATEGIC SYSTEMS // 2D MODE</span>
-        <span>STAUNTON KNIGHT ARCHITECTURE</span>
+        <span>STRATEGIC SYSTEMS // 2D VIEW</span>
+        <span>ENGINEERING DOMAINS</span>
       </div>
     </div>
   )

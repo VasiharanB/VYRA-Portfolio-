@@ -9,23 +9,28 @@ interface StrategicChessCanvasProps {
   onContextLoss: (reason: string) => void
 }
 
-const VECTOR_DETAILS: Record<StrategicVector, { title: string; subtitle: string }> = {
-  STRATEGY: {
-    title: 'VECTOR 01 // FIRST-PRINCIPLES STRATEGY',
-    subtitle: 'Problem decomposition · Outcome-driven modeling · Rigorous constraints',
+// Concise, authentic connections to Vasiharan's actual engineering projects
+const VECTOR_DETAILS: Record<StrategicVector, { domain: string; project: string; description: string }> = {
+  APPLIED_AI: {
+    domain: 'APPLIED AI',
+    project: 'Smart Issue Tracker',
+    description: 'Semantic duplicate detection and AI-assisted verification.',
   },
-  ARCHITECTURE: {
-    title: 'VECTOR 02 // SYSTEMS ARCHITECTURE',
-    subtitle: 'Modular topologies · Resilient distributed APIs · High concurrency',
+  REAL_TIME: {
+    domain: 'REAL-TIME SYSTEMS',
+    project: 'Cricket Conquest',
+    description: 'Live IPL auction workflows and role-based access.',
   },
-  EXECUTION: {
-    title: 'VECTOR 03 // PRODUCTION EXECUTION',
-    subtitle: 'Type-safe implementation · Verified testing · Rapid measured shipping',
+  BUSINESS_SOFTWARE: {
+    domain: 'BUSINESS SOFTWARE',
+    project: 'JGC Construction ERP',
+    description: 'Project operations, CRM and inventory workflows.',
   },
 }
 
 export function StrategicChessCanvas({ reducedMotion, onContextLoss }: StrategicChessCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const scrollProgressRef = useRef<number>(0)
   const [isVisible, setIsVisible] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [activeVector, setActiveVector] = useState<StrategicVector | null>(null)
@@ -39,6 +44,21 @@ export function StrategicChessCanvas({ reducedMotion, onContextLoss }: Strategic
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Track scroll position through hero for subtle perspective shifts without pinning
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!containerRef.current) return
+      const rect = containerRef.current.getBoundingClientRect()
+      const height = rect.height || 600
+      const progress = Math.max(0, Math.min(1.5, -rect.top / height))
+      scrollProgressRef.current = progress
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   // Pause rendering when hero is scrolled out of viewport
@@ -94,7 +114,7 @@ export function StrategicChessCanvas({ reducedMotion, onContextLoss }: Strategic
       {/* Background circuit grid */}
       <div className="strategic-grid" style={{ pointerEvents: 'none' }} />
 
-      {/* Top Telemetry Header with Clean Left-Aligned Strategic Vector Selectors */}
+      {/* Minimal HUD: Strategic Domain Controls connected directly to real portfolio */}
       <div
         className="strategic-hud"
         style={{
@@ -105,59 +125,67 @@ export function StrategicChessCanvas({ reducedMotion, onContextLoss }: Strategic
           display: 'flex',
           flexDirection: 'column',
           gap: '6px',
-          maxWidth: '380px',
+          maxWidth: '340px',
           pointerEvents: 'none',
         }}
       >
-        <span style={{ color: 'var(--acid)', fontFamily: 'var(--mono)', fontSize: '8px', letterSpacing: '0.12em', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-          <i
-            style={{
-              width: '5px',
-              height: '5px',
-              borderRadius: '50%',
-              background: 'var(--acid)',
-              display: 'inline-block',
-              boxShadow: '0 0 6px var(--acid)',
-            }}
-          />
-          VYRA // STRATEGIC SYSTEMS
-        </span>
-        <span style={{ fontFamily: 'var(--mono)', fontSize: '8px', color: '#a5ad98', opacity: 0.85 }}>
-          {activeInfo ? activeInfo.title : 'KNIGHT DYNAMICS · CIRCUIT CHESSBOARD'}
-        </span>
-
-        {/* Vector Toggle Buttons — positioned below title to avoid top-right HUD collision */}
-        <div style={{ display: 'flex', gap: '6px', pointerEvents: 'auto', marginTop: '2px' }}>
-          {(['STRATEGY', 'ARCHITECTURE', 'EXECUTION'] as StrategicVector[]).map((v) => (
-            <button
-              key={v}
-              type="button"
-              onClick={() => setActiveVector((prev) => (prev === v ? null : v))}
-              onMouseEnter={() => setActiveVector(v)}
-              style={{
-                background: activeVector === v ? 'var(--acid)' : 'rgba(17, 19, 17, 0.8)',
-                color: activeVector === v ? '#11150b' : '#a0a49b',
-                border: `1px solid ${activeVector === v ? 'var(--acid)' : 'rgba(240, 243, 231, 0.16)'}`,
-                borderRadius: '4px',
-                padding: '3px 8px',
-                fontFamily: 'var(--mono)',
-                fontSize: '7.5px',
-                letterSpacing: '0.08em',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-              aria-label={`Highlight strategic vector: ${v}`}
-            >
-              {v}
-            </button>
-          ))}
+        {/* Clean domain buttons */}
+        <div style={{ display: 'flex', gap: '6px', pointerEvents: 'auto' }}>
+          {([
+            { id: 'APPLIED_AI', label: 'Applied AI' },
+            { id: 'REAL_TIME', label: 'Real-time' },
+            { id: 'BUSINESS_SOFTWARE', label: 'Business ERP' },
+          ] as const).map(({ id, label }) => {
+            const isActive = activeVector === id
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActiveVector((prev) => (prev === id ? null : id))}
+                onMouseEnter={() => setActiveVector(id)}
+                style={{
+                  background: isActive ? 'var(--acid)' : 'rgba(17, 19, 17, 0.75)',
+                  color: isActive ? '#11150b' : '#a2a79c',
+                  border: `1px solid ${isActive ? 'var(--acid)' : 'rgba(240, 243, 231, 0.14)'}`,
+                  backdropFilter: 'blur(8px)',
+                  borderRadius: '4px',
+                  padding: '4px 9px',
+                  fontFamily: 'var(--mono)',
+                  fontSize: '8px',
+                  letterSpacing: '0.08em',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+                aria-label={`Highlight engineering domain: ${label}`}
+              >
+                {label}
+              </button>
+            )
+          })}
         </div>
 
-        {activeInfo && (
-          <span style={{ fontFamily: 'var(--sans)', fontSize: '10px', color: '#d8ddce', marginTop: '2px', lineHeight: 1.4, background: 'rgba(11, 12, 13, 0.65)', backdropFilter: 'blur(4px)', padding: '3px 6px', borderRadius: '3px' }}>
-            {activeInfo.subtitle}
-          </span>
-        )}
+        {/* Active project callout: concise, authentic, and visually secondary */}
+        {activeInfo ? (
+          <div
+            style={{
+              fontFamily: 'var(--sans)',
+              fontSize: '11px',
+              color: '#dbe1d3',
+              lineHeight: 1.45,
+              background: 'rgba(11, 12, 13, 0.82)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(185, 243, 106, 0.22)',
+              padding: '6px 10px',
+              borderRadius: '4px',
+              marginTop: '2px',
+            }}
+          >
+            <span style={{ color: 'var(--acid)', fontFamily: 'var(--mono)', fontSize: '8px', letterSpacing: '0.1em', display: 'block', marginBottom: '2px' }}>
+              {activeInfo.domain} // {activeInfo.project}
+            </span>
+            {activeInfo.description}
+          </div>
+        ) : null}
       </div>
 
       <Canvas
@@ -183,26 +211,10 @@ export function StrategicChessCanvas({ reducedMotion, onContextLoss }: Strategic
             reducedMotion={reducedMotion}
             activeVector={activeVector}
             onVectorSelect={setActiveVector}
+            scrollProgressRef={scrollProgressRef}
           />
         </Suspense>
       </Canvas>
-
-      {/* Bottom Telemetry Stamp */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '12px',
-          right: '8px',
-          zIndex: 4,
-          pointerEvents: 'none',
-          fontFamily: 'var(--mono)',
-          fontSize: '7px',
-          letterSpacing: '0.1em',
-          color: '#777f70',
-        }}
-      >
-        STAUNTON DYNAMICS · THREE.JS
-      </div>
     </div>
   )
 }
