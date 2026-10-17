@@ -8,6 +8,9 @@ import HeroGyroscope from './components/hero/HeroGyroscope'
 import LoadingIntro from './components/intro/LoadingIntro'
 import CustomCursor from './components/cursor/CustomCursor'
 import InteractiveProjectCard from './components/work/InteractiveProjectCard'
+import InteractivePrinciples from './components/about/InteractivePrinciples'
+import InteractiveTechToolbelt from './components/stack/InteractiveTechToolbelt'
+import { TECH_TO_PROJECTS } from './data/skillsData'
 
 // Code-split CaseStudyDrawer to keep the initial page bundle lean
 const CaseStudyDrawer = lazy(() => import('./components/work/CaseStudyDrawer'))
@@ -87,45 +90,6 @@ const projects = [
   },
 ]
 
-const skillGroups = [
-  {
-    label: '01 / INTERFACES',
-    title: 'Frontend engineering',
-    icon: Code2,
-    items: ['React', 'TypeScript', 'JavaScript', 'HTML & CSS', 'Vite', 'Tailwind CSS', 'Bootstrap'],
-  },
-  {
-    label: '02 / APPLICATIONS',
-    title: 'Backend & APIs',
-    icon: Layers3,
-    items: ['Node.js', 'Express', 'Django', 'Django REST Framework', 'PHP', 'REST APIs', 'WebSockets'],
-  },
-  {
-    label: '03 / DATA & INTELLIGENCE',
-    title: 'Data & applied AI',
-    icon: BrainCircuit,
-    items: ['MySQL', 'PostgreSQL', 'SQLite', 'FAISS', 'Embeddings', 'Machine Learning', 'Data Visualisation'],
-  },
-]
-
-const principles = [
-  {
-    number: '01',
-    title: 'Decompose the problem first',
-    text: 'Analyze user workflows, data models, and edge constraints before writing code to build the right solution.',
-  },
-  {
-    number: '02',
-    title: 'Structure for long-term clarity',
-    text: 'Keep state deterministic, interfaces decoupled, and code clean so systems remain dependable as requirements evolve.',
-  },
-  {
-    number: '03',
-    title: 'Focus on practical reliability',
-    text: 'Software succeeds when it solves real operational friction. Clear interfaces and resilient workflows matter most.',
-  },
-]
-
 function SectionHeading({ index, eyebrow, title, note }: { index: string; eyebrow: string; title: ReactNode; note?: string }) {
   return (
     <div className="section-heading">
@@ -146,7 +110,13 @@ function App() {
   const [showIntro, setShowIntro] = useState(true)
   const [activeCaseStudyId, setActiveCaseStudyId] = useState<string | null>(null)
   const [hasOpenedDrawer, setHasOpenedDrawer] = useState(false)
+  const [selectedTech, setSelectedTech] = useState<string | null>(null)
+  const [hoveredTech, setHoveredTech] = useState<string | null>(null)
   const lastActiveTriggerRef = useRef<HTMLElement | null>(null)
+
+  const activeTech = selectedTech || hoveredTech
+  const matchingProjectIds = activeTech ? (TECH_TO_PROJECTS[activeTech] || []) : []
+  const projectsMap = Object.fromEntries(projects.map((p) => [p.id, { href: p.href, title: p.title }]))
 
   const closeMenu = () => setMenuOpen(false)
 
@@ -285,18 +255,30 @@ function App() {
             index="02"
             eyebrow="A FEW THINGS I’VE BUILT"
             title={<>Selected work<span className="headline-period">.</span></>}
-            note="Real problems, distinct stacks — one focus: making systems dependable, usable, and performant."
+            note={
+              activeTech
+                ? `Filtering by ${activeTech}: ${matchingProjectIds.length} verified project${matchingProjectIds.length === 1 ? '' : 's'} highlighted.`
+                : "Real problems, distinct stacks — one focus: making systems dependable, usable, and performant."
+            }
           />
           <div className="project-grid">
-            {projects.map((project) => (
-              <InteractiveProjectCard
-                key={project.id}
-                project={project}
-                onInspect={handleOpenCaseStudy}
-                onPrefetch={handlePrefetch}
-                isActive={activeCaseStudyId === project.id}
-              />
-            ))}
+            {projects.map((project) => {
+              const isMatch = Boolean(activeTech && matchingProjectIds.includes(project.id))
+              const isDimmed = Boolean(activeTech && !matchingProjectIds.includes(project.id))
+
+              return (
+                <InteractiveProjectCard
+                  key={project.id}
+                  project={project}
+                  onInspect={handleOpenCaseStudy}
+                  onPrefetch={handlePrefetch}
+                  isActive={activeCaseStudyId === project.id}
+                  isHighlighted={isMatch}
+                  isDimmed={isDimmed}
+                  matchingTech={activeTech}
+                />
+              )
+            })}
           </div>
           <div className="more-work">
             <div className="more-work-copy">
@@ -342,21 +324,10 @@ function App() {
                   Explore my repositories on GitHub <ArrowUpRight size={15} />
                 </a>
               </div>
-              <div className="principles">
-                {principles.map((principle) => (
-                  <article className="principle-row" key={principle.number}>
-                    <span className="principle-number">{principle.number}</span>
-                    <div>
-                      <h3>{principle.title}</h3>
-                      <p>{principle.text}</p>
-                    </div>
-                    <ArrowUpRight className="principle-arrow" size={18} />
-                  </article>
-                ))}
-                <div className="principle-foot">
-                  <Check size={15} /> PRACTICAL ENGINEERING. CONTINUOUS DISCIPLINE.
-                </div>
-              </div>
+              <InteractivePrinciples
+                onInspectCaseStudy={handleOpenCaseStudy}
+                projectsMap={projectsMap}
+              />
             </div>
           </div>
         </section>
@@ -367,38 +338,20 @@ function App() {
             index="04"
             eyebrow="TOOLS I REACH FOR"
             title={<>My working stack<span className="headline-period">.</span></>}
-            note="A practical toolkit developed across web applications, real-time services, and applied AI projects."
+            note={
+              activeTech
+                ? `Technology inspected: ${activeTech}. Click to toggle persistent filter mode.`
+                : "A practical toolkit developed across web applications, real-time services, and applied AI projects."
+            }
           />
-          <div className="skill-grid">
-            {skillGroups.map((group) => {
-              const GroupIcon = group.icon
-              return (
-                <article className="skill-card" key={group.label}>
-                  <div className="skill-card-top">
-                    <span className="skill-icon"><GroupIcon size={20} strokeWidth={1.6} /></span>
-                    <span className="skill-label">{group.label}</span>
-                  </div>
-                  <h3>{group.title}</h3>
-                  <div className="skill-chips">
-                    {group.items.map((item) => <span key={item}>{item}</span>)}
-                  </div>
-                </article>
-              )
-            })}
-          </div>
-          <div className="toolbelt">
-            <span className="toolbelt-label">ADDITIONAL TECHNOLOGIES</span>
-            <div className="toolbelt-list">
-              <span>Python</span>
-              <span>Java</span>
-              <span>C / C++</span>
-              <span>Git & GitHub</span>
-              <span>Postman</span>
-              <span>Figma</span>
-              <span>Linux</span>
-              <span>SQLite</span>
-            </div>
-          </div>
+          <InteractiveTechToolbelt
+            selectedTech={selectedTech}
+            hoveredTech={hoveredTech}
+            onSelectTech={setSelectedTech}
+            onHoverTech={setHoveredTech}
+            onInspectCaseStudy={handleOpenCaseStudy}
+            projects={projects}
+          />
         </section>
 
         {/* CONTACT SECTION */}

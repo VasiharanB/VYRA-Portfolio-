@@ -20,6 +20,9 @@ interface InteractiveProjectCardProps {
   onInspect: (projectId: string) => void
   onPrefetch?: () => void
   isActive?: boolean
+  isHighlighted?: boolean
+  isDimmed?: boolean
+  matchingTech?: string | null
 }
 
 export function InteractiveProjectCard({
@@ -27,6 +30,9 @@ export function InteractiveProjectCard({
   onInspect,
   onPrefetch,
   isActive = false,
+  isHighlighted = false,
+  isDimmed = false,
+  matchingTech = null,
 }: InteractiveProjectCardProps) {
   const cardRef = useRef<HTMLElement>(null)
   const prefersReducedMotion = useReducedMotion()
@@ -68,12 +74,12 @@ export function InteractiveProjectCard({
   return (
     <article
       ref={cardRef}
-      className={`project-card tone-${project.tone} interactive-tilt-card ${isActive ? 'card-active' : ''}`}
+      className={`project-card tone-${project.tone} interactive-tilt-card ${isActive ? 'card-active' : ''} ${isHighlighted ? 'card-highlighted' : ''} ${isDimmed ? 'card-dimmed' : ''}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
         transform: `perspective(1000px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
-        transition: 'transform 0.15s ease-out, border-color 0.25s',
+        transition: 'transform 0.15s ease-out, border-color 0.25s, opacity 0.25s, filter 0.25s',
       }}
     >
       {/* Dynamic Cursor Spotlight Overlay */}
@@ -87,7 +93,14 @@ export function InteractiveProjectCard({
       />
 
       <div className="project-card-top">
-        <span className="project-number">/{project.number}</span>
+        <div className="project-top-left">
+          <span className="project-number">/{project.number}</span>
+          {isHighlighted && matchingTech && (
+            <span className="project-highlight-badge">
+              USES {matchingTech.toUpperCase()}
+            </span>
+          )}
+        </div>
         <a
           className="project-open"
           href={project.href}
@@ -117,9 +130,21 @@ export function InteractiveProjectCard({
         <p className="project-description">{project.description}</p>
         
         <div className="project-tags">
-          {project.stack.map((technology) => (
-            <span key={technology}>{technology}</span>
-          ))}
+          {project.stack.map((technology) => {
+            const isTagMatch = matchingTech && (
+              technology.toLowerCase() === matchingTech.toLowerCase() ||
+              (matchingTech.toLowerCase() === 'django' && technology.toLowerCase().includes('django')) ||
+              (matchingTech.toLowerCase() === 'react' && technology.toLowerCase().includes('react'))
+            )
+            return (
+              <span
+                key={technology}
+                className={isTagMatch ? 'tag-matched' : ''}
+              >
+                {technology}
+              </span>
+            )
+          })}
         </div>
 
         {/* Action Row: Inspect case study + Direct repository link */}
