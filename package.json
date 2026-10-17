@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Vasiharan B — developer portfolio built with React, TypeScript and Vite.",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit -p tsconfig.json && vite build",
