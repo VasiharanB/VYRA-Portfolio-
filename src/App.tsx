@@ -50,6 +50,10 @@ function App() {
   const matchingProjectIds = activeTech ? (TECH_TO_PROJECTS[activeTech] || []) : []
   const projectsMap = Object.fromEntries(projects.map((p) => [p.id, { href: p.href, title: p.title }]))
 
+  // Platform-specific shortcut label (⌘K on Apple platforms, Ctrl K on Windows/Linux/Android)
+  const isApplePlatform = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/i.test(navigator.userAgent)
+  const shortcutBadge = isApplePlatform ? '⌘K' : 'Ctrl K'
+
   const closeMenu = () => setMenuOpen(false)
 
   const handleOpenCaseStudy = (id: string) => {
@@ -170,12 +174,12 @@ function App() {
             className="nav-command-btn"
             onClick={handleOpenCommandPalette}
             onMouseEnter={() => import('./components/command/CommandPalette')}
-            aria-label="Open command palette (Ctrl+K or ⌘K)"
-            title="Open command palette (Ctrl+K / ⌘K)"
+            aria-label={`Open command palette (${shortcutBadge})`}
+            title={`Open command palette (${shortcutBadge})`}
           >
             <Search size={13} strokeWidth={2} />
             <span>Search</span>
-            <kbd className="nav-kbd">{typeof navigator !== 'undefined' && /Mac|iPhone|iPad/i.test(navigator.userAgent) ? '⌘K' : 'Ctrl K'}</kbd>
+            <kbd className="nav-kbd">{shortcutBadge}</kbd>
           </button>
           <a className="nav-cta" href="#contact">
             Let’s talk <ArrowUpRight size={15} strokeWidth={1.8} />
@@ -199,11 +203,12 @@ function App() {
                 closeMenu()
                 handleOpenCommandPalette()
               }}
+              aria-label={`Open search and commands (${shortcutBadge})`}
             >
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Search size={15} /> Search & commands
               </span>
-              <kbd>⌘K</kbd>
+              <kbd>{shortcutBadge}</kbd>
             </button>
             <a href="#work" onClick={closeMenu}>Selected work <ArrowUpRight size={16} /></a>
             <a href="#about" onClick={closeMenu}>About me <ArrowUpRight size={16} /></a>
@@ -434,9 +439,9 @@ function App() {
             type="button"
             className="replay-intro-btn"
             onClick={handleOpenCommandPalette}
-            title="Open command palette (Ctrl+K / ⌘K)"
+            title={`Open command palette (${shortcutBadge})`}
           >
-            [COMMANDS ⌘K]
+            [COMMANDS {shortcutBadge}]
           </button>
           <button
             type="button"
