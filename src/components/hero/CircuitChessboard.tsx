@@ -23,15 +23,15 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
     acid: new THREE.Color('#b9f36a'),
     acidDim: new THREE.Color('#384c20'),
   }) : ({
-    // Light mode: warm ivory plates with charcoal stone contrast
-    tileLight: new THREE.Color('#ffffff'), // crisp white
+    // Light mode: warm ivory plates with crisp slate stone contrast
+    tileLight: new THREE.Color('#ffffff'), // crisp ivory white
     tileLightTop: new THREE.Color('#f4f6ee'), // specular top plate
-    tileDark: new THREE.Color('#828a7e'),  // warm charcoal slate
-    tileDarkBevel: new THREE.Color('#6d7569'), // subtle bevel rim
-    gridSeam: new THREE.Color('#c2c8bc'),  // recessed light channel
-    hairlineBus: new THREE.Color('#9ca495'), // circuit trace
-    acid: new THREE.Color('#226e17'),
-    acidDim: new THREE.Color('#559918'),
+    tileDark: new THREE.Color('#5a636e'),  // deep slate charcoal stone
+    tileDarkBevel: new THREE.Color('#48505a'), // bevel rim
+    gridSeam: new THREE.Color('#bcc4b6'),  // recessed channel
+    hairlineBus: new THREE.Color('#889282'), // circuit trace
+    acid: new THREE.Color('#1b5e12'),
+    acidDim: new THREE.Color('#3b8e24'),
   }), [isDark])
 
   // Board dimensions: 6x6 grid of 1.15 unit tiles
@@ -65,7 +65,7 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
   ], [tileSize])
 
   return (
-    <group position={[0, -0.84, 0]} rotation={[-0.38, 0.35, 0]} scale={[0.88, 0.88, 0.88]}>
+    <group position={[0, -0.86, 0]} rotation={[0, 0.32, 0]} scale={[0.92, 0.92, 0.92]}>
       {/* 6x6 PARTIAL CHESSBOARD TILES */}
       {Array.from({ length: gridSize }).map((_, r) => {
         return Array.from({ length: gridSize }).map((_, c) => {
@@ -73,9 +73,9 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
           const posZ = r * tileSize - boardOffset
           const isLight = (r + c) % 2 === 0
 
-          // Calculate radial falloff so perimeter tiles dissolve into the graphite background
+          // Radial falloff tuned so all 36 alternating squares remain clearly visible with subtle edge feather
           const distFromCenter = Math.hypot(posX, posZ)
-          const opacity = Math.max(0.18, Math.min(0.98, 1.0 - (distFromCenter / (boardOffset * 1.5)) * 0.68))
+          const opacity = Math.max(0.65, Math.min(1.0, 1.05 - (distFromCenter / (boardOffset * 2.2)) * 0.42))
 
           return (
             <group key={`tile-${r}-${c}`} position={[posX, -0.04, posZ]}>
@@ -84,8 +84,8 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
                 <boxGeometry args={[tileSize * 0.95, 0.08, tileSize * 0.95]} />
                 <meshStandardMaterial
                   color={isLight ? palette.tileLight : palette.tileDark}
-                  roughness={isLight ? 0.26 : 0.36}
-                  metalness={0.80}
+                  roughness={isLight ? 0.24 : 0.34}
+                  metalness={0.82}
                   transparent
                   opacity={opacity}
                 />
@@ -97,10 +97,10 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
                   <planeGeometry args={[tileSize * 0.88, tileSize * 0.88]} />
                   <meshStandardMaterial
                     color={palette.tileLightTop}
-                    roughness={0.22}
-                    metalness={0.85}
+                    roughness={0.20}
+                    metalness={0.88}
                     transparent
-                    opacity={opacity * 0.85}
+                    opacity={opacity * 0.92}
                   />
                 </mesh>
               ) : (
@@ -108,10 +108,10 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
                   <planeGeometry args={[tileSize * 0.88, tileSize * 0.88]} />
                   <meshStandardMaterial
                     color={palette.tileDarkBevel}
-                    roughness={0.34}
-                    metalness={0.80}
+                    roughness={0.32}
+                    metalness={0.82}
                     transparent
-                    opacity={opacity * 0.70}
+                    opacity={opacity * 0.82}
                   />
                 </mesh>
               )}

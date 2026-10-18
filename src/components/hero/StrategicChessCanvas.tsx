@@ -189,7 +189,7 @@ export function StrategicChessCanvas({ reducedMotion, onContextLoss }: Strategic
       </div>
 
       <Canvas
-        camera={{ position: [0, 0.8, isMobile ? 8.2 : 7.2], fov: 42, near: 0.1, far: 100 }}
+        camera={{ position: [0, 3.1, isMobile ? 6.2 : 5.2], fov: isMobile ? 40 : 35, near: 0.1, far: 100 }}
         dpr={isMobile ? [1, 1.5] : [1, 2]}
         frameloop={isVisible && !reducedMotion ? 'always' : 'demand'}
         gl={{
