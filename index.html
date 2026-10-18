@@ -4,6 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0b0c0d" />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('vyra-theme');
+          var theme = saved;
+          if (!theme || (theme !== 'light' && theme !== 'dark')) {
+            var mql = window.matchMedia('(prefers-color-scheme: light)');
+            theme = mql.matches ? 'light' : 'dark';
+          }
+          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.style.colorScheme = theme;
+          var metaTheme = document.querySelector('meta[name="theme-color"]');
+          if (metaTheme) {
+            metaTheme.setAttribute('content', theme === 'light' ? '#f7f7f3' : '#0b0c0d');
+          }
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
     <meta name="description" content="Vasiharan B is a Chennai-based full-stack developer building practical web applications, AI-assisted products, and thoughtful digital experiences." />
     <meta name="author" content="Vasiharan B" />
     <meta property="og:type" content="website" />

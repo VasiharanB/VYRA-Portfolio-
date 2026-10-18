@@ -1,0 +1,107 @@
+import React from 'react'
+
+export interface StrategicFallbackProps {
+  reason?: string
+}
+
+export function StrategicFallback({ reason }: StrategicFallbackProps) {
+  return (
+    <div className="strategic-stage" aria-hidden="true" data-fallback-reason={reason}>
+      {/* Background Circuit Grid */}
+      <div className="strategic-grid" />
+
+      {/* Isometric Vector Circuit Board Graphic */}
+      <svg
+        className="strategic-svg-graphic"
+        viewBox="0 0 600 500"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <linearGradient id="knightGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#58626c" />
+            <stop offset="100%" stopColor="#22282e" />
+          </linearGradient>
+          <radialGradient id="auraGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#b9f36a" stopOpacity="0.22" />
+            <stop offset="60%" stopColor="#223024" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="#0b0c0d" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+
+        {/* Ambient Atmospheric Back Glow */}
+        <circle cx="300" cy="240" r="190" fill="url(#auraGlow)" />
+
+        {/* High-Contrast Isometric Chessboard Tiles */}
+        <g opacity="0.85" stroke="#16181b" strokeWidth="1">
+          {/* Isometric Diamond Grid with Alternating Bright/Dark Squares */}
+          <path d="M300 280 L480 370 L300 460 L120 370 Z" fill="#20252b" />
+          <path d="M300 280 L390 325 L210 415 L120 370 Z" fill="#5a6672" />
+          <path d="M390 325 L480 370 L300 460 L210 415 Z" fill="#6e7c8a" opacity="0.9" />
+          <path d="M210 325 L300 370 L390 325" fill="none" stroke="#2a323a" strokeWidth="1.5" />
+          <path d="M255 347 L345 392" fill="none" stroke="#2a323a" strokeWidth="1.5" />
+          <path d="M165 392 L345 302" fill="none" stroke="#2a323a" strokeWidth="1.5" />
+        </g>
+
+        {/* Circuit Bus Lines & Intersection Vias */}
+        <path d="M300 370 L210 415 L180 400" stroke="var(--acid)" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.6" />
+        <circle cx="180" cy="400" r="4" fill="var(--acid)" />
+        <text x="95" y="420" fill="var(--acid)" fontFamily="var(--mono)" fontSize="9" letterSpacing="0.1em">01 // APPLIED AI</text>
+
+        <path d="M300 370 L390 415 L430 395" stroke="var(--acid)" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.6" />
+        <circle cx="430" cy="395" r="4" fill="var(--acid)" />
+        <text x="410" y="420" fill="var(--acid)" fontFamily="var(--mono)" fontSize="9" letterSpacing="0.1em">02 // REAL-TIME</text>
+
+        <path d="M300 370 L300 445 L350 470" stroke="var(--acid)" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.8" />
+        <circle cx="350" cy="470" r="4" fill="var(--acid)" />
+        <text x="320" y="490" fill="var(--acid)" fontFamily="var(--mono)" fontSize="9" letterSpacing="0.1em">03 // BUSINESS ERP</text>
+
+        {/* THE CHESS KNIGHT ICONIC SILHOUETTE */}
+        <g transform="translate(300, 150) scale(1.1)">
+          {/* Base Pedestal */}
+          <path
+            d="M-45 120 L45 120 L38 108 L-38 108 Z"
+            fill="#16181b"
+            stroke="rgba(240, 243, 231, 0.25)"
+            strokeWidth="1"
+          />
+          <path
+            d="M-34 108 L34 108 L28 92 L-28 92 Z"
+            fill="#101214"
+            stroke="rgba(240, 243, 231, 0.18)"
+            strokeWidth="1"
+          />
+          <line x1="-30" y1="92" x2="30" y2="92" stroke="var(--acid)" strokeWidth="1.5" strokeOpacity="0.7" />
+
+          {/* Horse Head & Neck Contour */}
+          <path
+            d="M-22 92
+               C-35 65, -42 35, -34 5
+               L-46 -15 L-36 -28 L-48 -50 L-32 -62
+               L-24 -92 L-10 -72
+               C12 -65, 30 -45, 45 -22
+               C56 -8, 64 2, 65 14
+               L52 22 L40 18
+               C26 24, 16 38, 14 55
+               C12 70, 18 82, 22 92 Z"
+            fill="url(#knightGradient)"
+            stroke="rgba(240, 243, 231, 0.4)"
+            strokeWidth="1.2"
+          />
+
+          {/* Restrained Cybernetic Eye & Seam */}
+          <circle cx="18" cy="-12" r="4" fill="#16181b" stroke="rgba(240, 243, 231, 0.3)" strokeWidth="1" />
+          <circle cx="18" cy="-12" r="2.2" fill="var(--acid)" />
+        </g>
+      </svg>
+
+      {/* Subtitle Stamp */}
+      <div className="strategic-fallback-meta">
+        <span>STRATEGIC SYSTEMS // 2D VIEW</span>
+        <span>ENGINEERING DOMAINS</span>
+      </div>
+    </div>
+  )
+}
+
+export default StrategicFallback

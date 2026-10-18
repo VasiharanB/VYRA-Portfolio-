@@ -1,83 +1,113 @@
 # VYRA — Vasiharan B
 
-A personal developer portfolio built with **React, TypeScript and Vite**. The experience uses a dark editorial visual system, responsive layouts, subtle motion, and a project-first presentation.
+A distinctive, chess-inspired portfolio for **Vasiharan B**, a full-stack developer building practical web applications, business software, and AI-assisted products. VYRA combines a dark editorial visual system, immersive 3D details, clear project case studies, and a direct freelance inquiry flow.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FVasiharanB%2FVYRA-Portfolio-)
+**Live portfolio:** https://vyra-portfolio.vercel.app  
+**Repository:** https://github.com/VasiharanB/VYRA-Portfolio-
 
-## Live website
+## Experience highlights
 
-**Production:** [https://vyra-portfolio.vercel.app](https://vyra-portfolio.vercel.app)
+- **Cinematic opening sequence** — a 3D chess-inspired intro with a skip option, a bounded safety timeout, and session-aware replay behavior.
+- **Interactive 3D hero** — a chess/gyroscope visual identity with reduced-motion and graphics-support fallbacks.
+- **Two visual themes** — OBSIDIAN and IVORY, switched with the custom VYRA Palette Shift control. The selected theme is persisted in the browser; first-time visitors follow their system preference.
+- **Selected work and case studies** — six project stories with interactive detail drawers and architecture diagrams.
+- **Chess-inspired qualities** — interactive King, Queen, Rook, Bishop, Knight, and Pawn sections using attributed 3D Staunton models.
+- **Interactive tech toolbelt** — explore technologies and see their relationships to featured projects.
+- **Command palette** — quick navigation and actions using `Ctrl+K` on Windows/Linux or `⌘K` on Apple platforms.
+- **Freelance services and project inquiry** — a validated inquiry form prepares a message for WhatsApp or offers an email fallback. The visitor reviews and sends the message through their chosen app; the site does not submit it to a portfolio-owned backend.
+- **Responsive and considerate interaction** — layouts for mobile, tablet, and desktop, keyboard-friendly controls, reduced-motion handling, and code-split heavier interactive views.
 
-Deployed on Vercel from the `main` branch. The site uses Vite, `npm run build`, and `dist` as the output directory.
+## Featured projects
 
-## Highlights
+| Project | Focus |
+| --- | --- |
+| FitTrack Desktop | Python desktop application, SQLite persistence, and analytics visualisation |
+| JGC Construction ERP | Construction operations including CRM, projects, materials, and inventory |
+| Cricket Conquest | IPL auction workflow, real-time updates, and role-based access |
+| Smart Issue Tracker | Semantic duplicate-ticket detection and AI-assisted verification |
+| Aethon AI | Collaborative placement-preparation and assessment platform |
+| SMS Spam Detection | Django application for SMS spam/ham classification |
 
-- Responsive portfolio experience for desktop, tablet, and mobile
-- Project cards linking to real GitHub repositories
-- Sections for introduction, selected work, skills, approach, and contact
-- Accessible navigation and reduced-motion support
-- Custom favicon, social preview image, metadata, and clean page structure
-- Vite production build configured for Vercel
+Project cards link to their corresponding repositories from the portfolio.
 
-## Built with
+## Technology
 
-- React 18
-- TypeScript
-- Vite
-- Lucide React
-- CSS animations and responsive layouts
+- **UI:** React 18, TypeScript, Vite
+- **3D:** Three.js, React Three Fiber, and Drei
+- **Motion and icons:** Framer Motion, Lucide React
+- **Styling:** custom CSS, responsive layouts, OBSIDIAN/IVORY theme tokens
+- **Build checks:** TypeScript validation followed by a Vite production build
+- **Hosting:** Vercel
 
 ## Run locally
 
-Requirements: Node.js 18+ and npm.
+### Requirements
 
-~~~bash
+- Node.js **24.x** (the version declared in `package.json`)
+- npm
+
+### Setup
+
+```bash
 git clone https://github.com/VasiharanB/VYRA-Portfolio-.git
 cd VYRA-Portfolio-
-npm install
+npm ci
 npm run dev
-~~~
+```
 
 Open the local URL printed by Vite.
 
-## Production build
+### Production build
 
-~~~bash
+```bash
 npm run build
 npm run preview
-~~~
+```
 
-The production output is generated in the dist/ directory.
+The build script runs TypeScript validation and then creates the production site in `dist/`. There is no separate automated test script currently defined in `package.json`; treat a successful production build as a compile/build check, not as a full browser-based regression test.
 
 ## Deploy to Vercel
 
-This repository includes `vercel.json` with the production build command and output directory. To create or manage a separate Vercel project:
+The repository includes `vercel.json` with the build command, install command, and output directory.
 
-1. Sign in to [Vercel](https://vercel.com/).
-2. Import `VasiharanB/VYRA-Portfolio-` from GitHub and grant repository access when prompted.
-3. Keep the root directory as `/`; the Vite framework should be detected automatically.
-4. Use `npm run build` as the build command and `dist` as the output directory.
-5. Deploy. Vercel will provide a production URL and can rebuild on future pushes when Git integration is connected.
+1. Import `VasiharanB/VYRA-Portfolio-` in [Vercel](https://vercel.com/).
+2. Keep the project root set to `/`.
+3. Use the repository's configured `npm run build` command and `dist` output directory.
+4. Connect the Git repository so Vercel can create preview deployments for branches and production deployments from the configured production branch.
 
-No secrets or environment variables are required for the portfolio's current feature set.
+The current portfolio does not require environment variables or a portfolio-owned backend. The site loads its web fonts from Google Fonts; outbound contact actions open WhatsApp or the visitor's email application.
 
-## Featured work
+## Repository map
 
-| Project | Focus | Repository |
-| --- | --- | --- |
-| Smart Issue Tracker | Semantic duplicate-ticket detection and AI-assisted verification | [GitHub](https://github.com/VasiharanB/Smart-Issue-Tracker) |
-| Cricket Conquest | Real-time IPL auction workflow, WebSocket updates, and role-based access | [GitHub](https://github.com/VasiharanB/cricket-conquest-ipl-auction) |
-| JGC Constructions ERP | Construction operations, CRM, projects, materials, and inventory | [GitHub](https://github.com/VasiharanB/jgc_constructions) |
-| FitTrack Desktop | Python desktop app, SQLite persistence, and analytics visualisation | [GitHub](https://github.com/VasiharanB/FitTrack-Desktop) |
-| SMS Spam Detection | Django application for SMS spam/ham classification | [GitHub](https://github.com/VasiharanB/sms_spam_detection) |
-| Aethon AI | Collaborative placement preparation and assessment platform | [GitHub](https://github.com/VasiharanB/aethon-ai) |
+```text
+src/
+  components/
+    about/      Engineering principles
+    chess/      Interactive chess qualities and 3D pieces
+    command/    Command palette
+    contact/    Project inquiry form
+    cursor/     Custom cursor
+    hero/       3D hero and fallbacks
+    intro/      Cinematic opening sequence
+    services/   Freelance services
+    stack/      Interactive technology toolbelt
+    theme/      Theme switch
+    work/       Project cards and case-study views
+  context/      Theme state
+  data/         Project, case-study, and skill data
+  hooks/        Reduced-motion and WebGL support checks
+  styles.css    Responsive UI and theme styling
+public/
+  models/       Attributed Staunton chess models
+scripts/        Model conversion utilities
+```
+
+## Attribution and license
+
+The portfolio source is distributed under the MIT License; see [LICENSE](./LICENSE). The 3D Staunton chess models have their own attribution and MIT license details in [public/models/CREDITS.md](./public/models/CREDITS.md). Preserve those notices when redistributing the associated assets.
 
 ## Contact
 
-- GitHub: [@VasiharanB](https://github.com/VasiharanB)
-- LinkedIn: [Vasiharan B](https://www.linkedin.com/in/vasiharan-b-ba0772322/)
-- Email: [vasiharan030@gmail.com](mailto:vasiharan030@gmail.com)
-
-## License
-
-This project is distributed under the MIT License. See LICENSE.
+- **Email:** [vasiharan030@gmail.com](mailto:vasiharan030@gmail.com)
+- **GitHub:** [@VasiharanB](https://github.com/VasiharanB)
+- **LinkedIn:** [Vasiharan B](https://www.linkedin.com/in/vasiharan-b-ba0772322/)
