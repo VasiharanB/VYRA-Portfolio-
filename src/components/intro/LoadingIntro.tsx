@@ -11,16 +11,20 @@ interface LoadingIntroProps {
 export function LoadingIntro({ onComplete }: LoadingIntroProps) {
   const prefersReducedMotion = useReducedMotion()
   const { isDark } = useTheme()
-  const [stepText, setStepText] = useState('SYS // INITIATING DIGITAL MATRIX · ALIGNING BOARD')
+  const [stepText, setStepText] = useState('SYS // THE CHESSBOARD AWAKENS · ASSEMBLING SPATIAL GRID')
   const [statusText, setStatusText] = useState('[INITIALIZING]')
   const [progressRatio, setProgressRatio] = useState(0)
   const [isFadingOut, setIsFadingOut] = useState(false)
-  const [hasCompleted, setHasCompleted] = useState(false)
+
+  // Stable refs to guarantee idempotent, single-fire completion
+  const isCompletedRef = useRef(false)
   const finishTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   const handleFinish = useCallback(() => {
-    if (hasCompleted) return
-    setHasCompleted(true)
+    if (isCompletedRef.current) return
+    isCompletedRef.current = true
     setIsFadingOut(true)
 
     try {
@@ -30,9 +34,9 @@ export function LoadingIntro({ onComplete }: LoadingIntroProps) {
     }
 
     finishTimerRef.current = setTimeout(() => {
-      onComplete()
+      onCompleteRef.current()
     }, 450)
-  }, [hasCompleted, onComplete])
+  }, [])
 
   const handleProgress = useCallback((ratio: number, step: string, status: string) => {
     setProgressRatio(ratio)
@@ -41,25 +45,26 @@ export function LoadingIntro({ onComplete }: LoadingIntroProps) {
   }, [])
 
   useEffect(() => {
-    // If reduced motion is preferred or already seen in this session, skip immediately
+    // If reduced motion is preferred, finish immediately
     if (prefersReducedMotion) {
-      onComplete()
+      onCompleteRef.current()
       return
     }
 
+    // If already seen in this browser session, skip immediately
     try {
       if (sessionStorage.getItem('vyra_intro_seen') === 'true') {
-        onComplete()
+        onCompleteRef.current()
         return
       }
     } catch {
       // Continue if session storage is unavailable
     }
 
-    // Safety timeout: Ensure the intro never hangs indefinitely under any graphics condition
-    const maxSafetyTimeout = setTimeout(() => {
+    // Hard safety timeout: Ensure the intro never hangs indefinitely under any graphics condition (4.8s max)
+    const safetyTimer = setTimeout(() => {
       handleFinish()
-    }, 3200)
+    }, 4800)
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key === 'Enter') {
@@ -69,11 +74,19 @@ export function LoadingIntro({ onComplete }: LoadingIntroProps) {
     window.addEventListener('keydown', handleKeyDown)
 
     return () => {
-      clearTimeout(maxSafetyTimeout)
-      if (finishTimerRef.current) clearTimeout(finishTimerRef.current)
+      clearTimeout(safetyTimer)
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [prefersReducedMotion, handleFinish, onComplete])
+  }, [prefersReducedMotion, handleFinish])
+
+  // Cleanup finish timer on actual unmount
+  useEffect(() => {
+    return () => {
+      if (finishTimerRef.current) {
+        clearTimeout(finishTimerRef.current)
+      }
+    }
+  }, [])
 
   return (
     <div
@@ -85,8 +98,14 @@ export function LoadingIntro({ onComplete }: LoadingIntroProps) {
       <div className="intro-backdrop" />
       <div className="intro-grid-pattern" />
 
-      {/* Core Real-Time 3D Cinematic Canvas (Code-Split) */}
-      <Suspense fallback={null}>
+      {/* Core Real-Time 3D Cinematic Canvas (Code-Split with Deliberate Fallback) */}
+      <Suspense
+        fallback={
+          <div className="intro-3d-fallback" aria-hidden="true">
+            <div className="intro-fallback-board-pulse" />
+          </div>
+        }
+      >
         <Cinematic3DIntro
           onProgress={handleProgress}
           onReady={() => {}}
@@ -129,7 +148,7 @@ export function LoadingIntro({ onComplete }: LoadingIntroProps) {
           </div>
           <div className="intro-coords-foot">
             <span>LAT 13° 00' N · CHENNAI</span>
-            <span style={{ color: 'var(--acid)', fontWeight: 600 }}>{statusText}</span>
+            <span className="intro-status-badge">{statusText}</span>
             <span>LON 80° 14' E</span>
           </div>
         </div>

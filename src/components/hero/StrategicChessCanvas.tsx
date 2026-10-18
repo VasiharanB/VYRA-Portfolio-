@@ -143,19 +143,7 @@ export function StrategicChessCanvas({ reducedMotion, onContextLoss }: Strategic
                 type="button"
                 onClick={() => setActiveVector((prev) => (prev === id ? null : id))}
                 onMouseEnter={() => setActiveVector(id)}
-                style={{
-                  background: isActive ? 'var(--acid)' : 'rgba(17, 19, 17, 0.75)',
-                  color: isActive ? '#11150b' : '#a2a79c',
-                  border: `1px solid ${isActive ? 'var(--acid)' : 'rgba(240, 243, 231, 0.14)'}`,
-                  backdropFilter: 'blur(8px)',
-                  borderRadius: '4px',
-                  padding: '4px 9px',
-                  fontFamily: 'var(--mono)',
-                  fontSize: '8px',
-                  letterSpacing: '0.08em',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                }}
+                className={`strategic-domain-btn ${isActive ? 'is-active' : ''}`}
                 aria-label={`Highlight engineering domain: ${label}`}
               >
                 {label}
@@ -166,24 +154,11 @@ export function StrategicChessCanvas({ reducedMotion, onContextLoss }: Strategic
 
         {/* Active project callout: concise, authentic, and visually secondary */}
         {activeInfo ? (
-          <div
-            style={{
-              fontFamily: 'var(--sans)',
-              fontSize: '11px',
-              color: '#dbe1d3',
-              lineHeight: 1.45,
-              background: 'rgba(11, 12, 13, 0.82)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(185, 243, 106, 0.22)',
-              padding: '6px 10px',
-              borderRadius: '4px',
-              marginTop: '2px',
-            }}
-          >
-            <span style={{ color: 'var(--acid)', fontFamily: 'var(--mono)', fontSize: '8px', letterSpacing: '0.1em', display: 'block', marginBottom: '2px' }}>
+          <div className="strategic-active-callout">
+            <span className="strategic-callout-header">
               {activeInfo.domain} // {activeInfo.project}
             </span>
-            {activeInfo.description}
+            <p className="strategic-callout-desc">{activeInfo.description}</p>
           </div>
         ) : null}
       </div>
