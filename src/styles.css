@@ -3536,7 +3536,24 @@
 
 /* Contact Section & Inquiry Form */
 [data-theme='light'] .contact-wrap {
-  border-top-color: rgba(20, 26, 17, 0.1);
+  border-color: rgba(20, 26, 17, 0.14);
+  background:
+    radial-gradient(
+      ellipse at 87% 2%,
+      rgba(34, 110, 23, 0.08),
+      transparent 43%
+    ),
+    linear-gradient(
+      130deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(250, 250, 246, 0.92) 70%
+    ),
+    #f0f1ea;
+  box-shadow: 0 12px 38px rgba(20, 26, 17, 0.08);
+}
+
+[data-theme='light'] .contact-wrap::after {
+  color: rgba(34, 110, 23, 0.045);
 }
 [data-theme='light'] .contact-stamp {
   color: #485243;
