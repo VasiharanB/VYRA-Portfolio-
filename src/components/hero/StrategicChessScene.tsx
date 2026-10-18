@@ -3,6 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import ChessKnight from './ChessKnight'
 import CircuitChessboard, { type StrategicVector } from './CircuitChessboard'
+import { useTheme } from '../../context/ThemeContext'
 
 interface StrategicChessSceneProps {
   isMobile: boolean
@@ -19,6 +20,7 @@ export function StrategicChessScene({
   onVectorSelect,
   scrollProgressRef,
 }: StrategicChessSceneProps) {
+  const { isDark } = useTheme()
   const masterGroupRef = useRef<THREE.Group>(null!)
   const { pointer } = useThree()
 
@@ -82,24 +84,24 @@ export function StrategicChessScene({
 
   return (
     <group ref={masterGroupRef} position={[0, -0.15, 0]}>
-      {/* 1. ATMOSPHERIC GRADIENT BACKDROP (Separates sculpture from #0b0c0d graphite canvas) */}
+      {/* 1. ATMOSPHERIC GRADIENT BACKDROP (Separates sculpture from background canvas) */}
       <mesh position={[0.2, 0.6, -2.2]}>
         <planeGeometry args={[7.0, 7.0]} />
         <meshBasicMaterial
-          color="#161f18"
+          color={isDark ? "#161f18" : "#e6ede0"}
           transparent
-          opacity={0.32}
+          opacity={isDark ? 0.32 : 0.45}
           depthWrite={false}
         />
       </mesh>
 
-      {/* 2. BASE AMBIENT FILL LIGHT: ensures recesses remain soft silver-charcoal instead of black */}
-      <ambientLight intensity={0.65} color="#262f38" />
+      {/* 2. BASE AMBIENT FILL LIGHT: ensures recesses remain soft silver-charcoal instead of black/overblown */}
+      <ambientLight intensity={isDark ? 0.65 : 0.85} color={isDark ? "#262f38" : "#f0f4ee"} />
 
       {/* 3. BROAD, SOFT FRONTAL KEY LIGHT: reveals muzzle, forehead, mane notches, and circular base */}
       <directionalLight
         position={[-2.5, 6.0, 6.5]}
-        intensity={3.2}
+        intensity={isDark ? 3.2 : 2.8}
         color="#ffffff"
         castShadow={false}
       />
@@ -107,29 +109,29 @@ export function StrategicChessScene({
       {/* 4. SECONDARY FRONTAL FILL LIGHT: softens shadows on the lateral cheek and neck */}
       <directionalLight
         position={[3.0, 3.5, 5.0]}
-        intensity={1.8}
-        color="#e2ebf4"
+        intensity={isDark ? 1.8 : 1.4}
+        color={isDark ? "#e2ebf4" : "#e8eef0"}
       />
 
-      {/* 5. RESTRAINED COOL RIM LIGHT: crisp steel-blue rim separating dorsal crest and ears from background */}
+      {/* 5. RESTRAINED RIM LIGHT: crisp rim separating dorsal crest and ears from background */}
       <directionalLight
         position={[4.8, 4.2, -4.5]}
-        intensity={2.6}
-        color="#a0c2f0"
+        intensity={isDark ? 2.6 : 2.0}
+        color={isDark ? "#a0c2f0" : "#8ca8b8"}
       />
 
       {/* 6. SOFT BOARD BOUNCE: upward reflection off the brightened chessboard into throat & chin */}
       <directionalLight
         position={[0, -2.5, 3.0]}
-        intensity={0.85}
-        color="#d4e4d8"
+        intensity={isDark ? 0.85 : 0.7}
+        color={isDark ? "#d4e4d8" : "#dae5dc"}
       />
 
       {/* 7. DYNAMIC SUBSTRATE ACCENT LIGHT */}
       <pointLight
         position={accentLightPos}
-        intensity={activeVector ? 2.8 : 0.9}
-        color="#b9f36a"
+        intensity={activeVector ? (isDark ? 2.8 : 2.2) : (isDark ? 0.9 : 0.6)}
+        color={isDark ? "#b9f36a" : "#438e1a"}
         distance={5.0}
         decay={2}
       />

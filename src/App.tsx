@@ -13,6 +13,7 @@ import InteractiveTechToolbelt from './components/stack/InteractiveTechToolbelt'
 import FreelanceServices from './components/services/FreelanceServices'
 import InteractiveChessQualities from './components/chess/InteractiveChessQualities'
 import ProjectInquiryForm from './components/contact/ProjectInquiryForm'
+import PaletteShiftToggle from './components/theme/PaletteShiftToggle'
 import { TECH_TO_PROJECTS } from './data/skillsData'
 import { PROJECTS } from './data/projectsData'
 
@@ -186,6 +187,7 @@ function App() {
             <span>Search</span>
             <kbd className="nav-kbd">{shortcutBadge}</kbd>
           </button>
+          <PaletteShiftToggle />
           <a className="nav-cta" href="#contact">
             Let’s talk <ArrowUpRight size={15} strokeWidth={1.8} />
           </a>
@@ -201,6 +203,10 @@ function App() {
         </div>
         {menuOpen ? (
           <nav className="mobile-nav" aria-label="Mobile navigation">
+            <div className="mobile-nav-top-row">
+              <span style={{ fontSize: '11px', fontFamily: 'var(--mono)', color: 'var(--muted)' }}>PALETTE</span>
+              <PaletteShiftToggle id="mobile-palette-shift-toggle" compact />
+            </div>
             <button
               type="button"
               className="mobile-nav-command"

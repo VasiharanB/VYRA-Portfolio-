@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import * as THREE from 'three'
+import { useTheme } from '../../context/ThemeContext'
 
 export type StrategicVector = 'APPLIED_AI' | 'REAL_TIME' | 'BUSINESS_SOFTWARE'
 
@@ -9,7 +10,9 @@ interface CircuitChessboardProps {
 }
 
 export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChessboardProps) {
-  const palette = useMemo(() => ({
+  const { isDark } = useTheme()
+
+  const palette = useMemo(() => isDark ? ({
     // High-contrast alternating squares with brightened titanium tones
     tileLight: new THREE.Color('#5a6672'), // bright brushed titanium slate
     tileLightTop: new THREE.Color('#6e7c8a'), // specular top highlight plate
@@ -19,7 +22,17 @@ export function CircuitChessboard({ activeVector, onVectorSelect }: CircuitChess
     hairlineBus: new THREE.Color('#2d382c'), // secondary circuit trace
     acid: new THREE.Color('#b9f36a'),
     acidDim: new THREE.Color('#384c20'),
-  }), [])
+  }) : ({
+    // Light mode: warm ivory plates with charcoal stone contrast
+    tileLight: new THREE.Color('#ffffff'), // crisp white
+    tileLightTop: new THREE.Color('#f4f6ee'), // specular top plate
+    tileDark: new THREE.Color('#828a7e'),  // warm charcoal slate
+    tileDarkBevel: new THREE.Color('#6d7569'), // subtle bevel rim
+    gridSeam: new THREE.Color('#c2c8bc'),  // recessed light channel
+    hairlineBus: new THREE.Color('#9ca495'), // circuit trace
+    acid: new THREE.Color('#226e17'),
+    acidDim: new THREE.Color('#559918'),
+  }), [isDark])
 
   // Board dimensions: 6x6 grid of 1.15 unit tiles
   const gridSize = 6

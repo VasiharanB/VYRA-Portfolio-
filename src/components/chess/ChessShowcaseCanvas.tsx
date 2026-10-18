@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useMemo, Suspense, useCallback } fr
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { StauntonPiece, type ChessPieceType } from './StauntonPieceModels'
+import { useTheme } from '../../context/ThemeContext'
 
 interface ChessShowcaseCanvasProps {
   activePieceId: ChessPieceType
@@ -13,19 +14,24 @@ interface ChessShowcaseCanvasProps {
 
 /**
  * Tournament-grade 6x6 Chessboard as a spatial foundation
- * Tiles softly fade at the perimeter into graphite background so the board
+ * Tiles softly fade at the perimeter into background so the board
  * grounds the piece without dominating the foreground.
  */
 function GroundedChessboard({ accentColor }: { accentColor: string }) {
+  const { isDark } = useTheme()
   const tileSize = 0.88
   const gridSize = 6
   const boardOffset = ((gridSize - 1) * tileSize) / 2
 
-  const palette = useMemo(() => ({
+  const palette = useMemo(() => isDark ? ({
     lightTile: new THREE.Color('#4a5664'), // refined brushed slate titanium
     darkTile: new THREE.Color('#161a1e'),  // deep graphite obsidian
     frame: new THREE.Color('#0f1215'),
-  }), [])
+  }) : ({
+    lightTile: new THREE.Color('#ffffff'), // crisp ivory white
+    darkTile: new THREE.Color('#828a7e'),  // warm charcoal stone
+    frame: new THREE.Color('#b8beb2'),     // light border frame
+  }), [isDark])
 
   return (
     <group position={[0, -0.02, 0]}>
@@ -186,6 +192,7 @@ function StudioScene({
   selectedAngle?: number
 }) {
   const { camera } = useThree()
+  const { isDark } = useTheme()
 
   // Setup comfortable framing: complete piece at 50-60% usable stage height
   useEffect(() => {
@@ -195,15 +202,17 @@ function StudioScene({
     camera.lookAt(0, 1.40, 0)
   }, [camera])
 
+  const effectiveAccent = isDark ? accentColor : '#226e17'
+
   return (
     <>
       {/* 1. Ambient Lighting: ensures recesses retain clear slate tones instead of black */}
-      <ambientLight intensity={0.58} color="#384350" />
+      <ambientLight intensity={isDark ? 0.58 : 0.82} color={isDark ? '#384350' : '#8e968a'} />
 
       {/* 2. Main Key Directional Light: casts soft, realistic shadows */}
       <directionalLight
         position={[4.5, 7.0, 5.0]}
-        intensity={1.7}
+        intensity={isDark ? 1.7 : 2.1}
         castShadow
         shadow-mapSize={[1024, 1024]}
         shadow-camera-near={0.5}
@@ -216,24 +225,24 @@ function StudioScene({
       />
 
       {/* 3. Soft Front-Left Fill Light: prevents unlit side from disappearing into dark */}
-      <directionalLight position={[-4.0, 3.5, 4.0]} intensity={0.9} color="#92a4b8" />
+      <directionalLight position={[-4.0, 3.5, 4.0]} intensity={isDark ? 0.9 : 1.1} color={isDark ? '#92a4b8' : '#cbd5e1'} />
 
-      {/* 4. Strong Rim Backlight: carves silhouette of crowns, cross, mitre, and knight mane */}
-      <directionalLight position={[-2.5, 5.0, -5.5]} intensity={1.5} color="#dbe7f5" />
+      {/* 4. Strong Rim Backlight: in light mode, deep rim carves metallic silhouette against light backdrop */}
+      <directionalLight position={[-2.5, 5.0, -5.5]} intensity={isDark ? 1.5 : 2.0} color={isDark ? '#dbe7f5' : '#3d4652'} />
 
       {/* 5. Secondary Side Kicker Light: specular highlights on opposite flanks during 360° rotation */}
-      <directionalLight position={[4.0, 3.0, -4.0]} intensity={0.75} color="#8595a8" />
+      <directionalLight position={[4.0, 3.0, -4.0]} intensity={isDark ? 0.75 : 0.9} color={isDark ? '#8595a8' : '#727e8d'} />
 
       {/* 6. Substrate Accent Glow from active square */}
-      <pointLight position={[0, 0.3, 0]} intensity={1.2} color={accentColor} distance={3.8} />
+      <pointLight position={[0, 0.3, 0]} intensity={isDark ? 1.2 : 0.85} color={effectiveAccent} distance={3.8} />
 
       {/* 7. Stationary Grounded Chessboard */}
-      <GroundedChessboard accentColor={accentColor} />
+      <GroundedChessboard accentColor={effectiveAccent} />
 
       {/* 8. 360° Turntable Piece Actor */}
       <TurntablePieceActor
         pieceType={activePieceId}
-        accentColor={accentColor}
+        accentColor={effectiveAccent}
         reducedMotion={reducedMotion}
         isRotating={isRotating}
         selectedAngle={selectedAngle}

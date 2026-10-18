@@ -8,6 +8,7 @@ import {
 import { PROJECTS } from '../../data/projectsData'
 import { TECH_TO_PROJECTS } from '../../data/skillsData'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
+import { useTheme } from '../../context/ThemeContext'
 
 interface CommandPaletteProps {
   isOpen: boolean
@@ -45,6 +46,7 @@ export function CommandPalette({
   const listRef = useRef<HTMLDivElement>(null)
   const paletteRef = useRef<HTMLDivElement>(null)
   const prefersReducedMotion = useReducedMotion()
+  const { toggleTheme, isDark } = useTheme()
 
   const portfolioEmail = 'vasiharan030@gmail.com'
 
@@ -152,6 +154,19 @@ export function CommandPalette({
 
     // 4. Quick Actions
     items.push(
+      {
+        id: 'action-toggle-theme',
+        group: 'actions',
+        title: isDark ? 'Switch to Ivory Palette (Light Mode)' : 'Switch to Obsidian Palette (Dark Mode)',
+        subtitle: isDark ? 'Warm ivory editorial surface with high-contrast typography' : 'Signature dark graphite with metallic chess pieces',
+        badge: isDark ? 'IVORY' : 'OBSIDIAN',
+        keywords: ['theme', 'palette', 'light', 'dark', 'mode', 'ivory', 'obsidian', 'color', 'shift'],
+        icon: Sparkles,
+        onSelect: () => {
+          onClose()
+          toggleTheme()
+        },
+      },
       {
         id: 'action-copy-email',
         group: 'actions',
