@@ -12,6 +12,7 @@ import InteractivePrinciples from './components/about/InteractivePrinciples'
 import InteractiveTechToolbelt from './components/stack/InteractiveTechToolbelt'
 import FreelanceServices from './components/services/FreelanceServices'
 import InteractiveChessQualities from './components/chess/InteractiveChessQualities'
+import ProjectInquiryForm from './components/contact/ProjectInquiryForm'
 import { TECH_TO_PROJECTS } from './data/skillsData'
 import { PROJECTS } from './data/projectsData'
 
@@ -429,29 +430,48 @@ function App() {
             <div className="contact-stamp">
               <Sparkles size={16} /> OPEN TO FREELANCE PROJECTS & CONTRACTS
             </div>
-            <div className="contact-content">
-              <div>
+            
+            <div className="contact-layout">
+              <div className="contact-intro">
                 <p className="eyebrow">07 / GET IN TOUCH</p>
                 <h2>
-                  Have a problem<br />
-                  worth solving<span className="headline-period">?</span>
+                  Have a project<br />
+                  in mind<span className="headline-period">?</span>
                 </h2>
                 <p className="contact-description">
-                  Whether you have an interesting product idea, a custom business software requirement, or a project where thoughtful full-stack development could help, I’d be glad to discuss it.
+                  Whether you have an early product concept, a custom business software requirement, or a full-stack platform where thoughtful engineering could help, I’d be glad to discuss the scope, architecture, and timeline.
                 </p>
+
+                <div className="contact-meta-group">
+                  <div className="contact-meta-item">
+                    <span className="status-dot" />
+                    <span>Direct: +91 70105 71781</span>
+                  </div>
+                  <div className="contact-meta-item">
+                    <Mail size={13} />
+                    <span>vasiharan030@gmail.com</span>
+                  </div>
+                  <div className="contact-meta-item">
+                    <MapPin size={13} />
+                    <span>Chennai, India (IST / UTC+5:30)</span>
+                  </div>
+                </div>
+
+                <div className="contact-social-links">
+                  <a className="social-link" href="https://www.linkedin.com/in/vasiharan-b-ba0772322/" target="_blank" rel="noreferrer">
+                    <Linkedin size={17} /> Connect on LinkedIn <ArrowUpRight size={15} />
+                  </a>
+                  <a className="social-link" href="https://github.com/VasiharanB" target="_blank" rel="noreferrer">
+                    <Github size={17} /> Follow my builds <ArrowUpRight size={15} />
+                  </a>
+                </div>
               </div>
-              <div className="contact-actions">
-                <a className="button button-primary contact-email" href="mailto:vasiharan030@gmail.com?subject=Project%20Inquiry%20%E2%80%94%20Vasiharan%20B">
-                  <Mail size={17} /> Discuss a project <ArrowUpRight size={17} />
-                </a>
-                <a className="social-link" href="https://www.linkedin.com/in/vasiharan-b-ba0772322/" target="_blank" rel="noreferrer">
-                  <Linkedin size={17} /> Connect on LinkedIn <ArrowUpRight size={15} />
-                </a>
-                <a className="social-link" href="https://github.com/VasiharanB" target="_blank" rel="noreferrer">
-                  <Github size={17} /> Follow my builds <ArrowUpRight size={15} />
-                </a>
+
+              <div className="contact-form-container">
+                <ProjectInquiryForm />
               </div>
             </div>
+
             <div className="contact-bottom">
               <span><span className="status-dot" /> AVAILABLE FOR FREELANCE & PRODUCT ENGINEERING</span>
               <span>CHENNAI, INDIA · IST (UTC+5:30)</span>
